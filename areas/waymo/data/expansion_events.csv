@@ -1,0 +1,40 @@
+metro,date,kind,added,removed,before,after
+Atlanta,2025-06-12,launch,111.56,0.0,0.0,111.56
+Austin,2024-11-03,launch,35.49,0.0,0.0,35.49
+Austin,2025-06-12,expansion,114.66,0.02,35.49,150.13
+Dallas,2026-02-28,launch,47.42,0.0,0.0,47.42
+Denver,2026-09-07,launch,58.41,0.0,0.0,58.41
+Houston,2026-02-28,launch,22.45,0.0,0.0,22.45
+Houston,2026-06-06,expansion,27.19,0.05,22.45,49.59
+Las Vegas,2026-09-16,launch,23.35,0.0,0.0,23.35
+Los Angeles,2024-04-25,launch,55.82,0.0,0.0,55.82
+Los Angeles,2024-08-08,expansion,23.88,0.51,55.82,79.19
+Los Angeles,2025-02-11,expansion,9.52,0.18,79.19,88.53
+Los Angeles,2025-07-02,expansion,34.72,0.2,88.53,123.04
+Los Angeles,2025-10-15,expansion,1.77,0.29,123.04,124.53
+Los Angeles,2026-10-27,expansion,89.17,0.37,124.53,213.33
+Miami,2026-01-31,launch,51.57,0.0,0.0,51.57
+Miami,2026-04-08,expansion,38.39,0.73,51.57,89.22
+Miami,2026-06-06,expansion,62.2,0.26,89.22,151.17
+Nashville,2026-04-08,launch,49.95,0.0,0.0,49.95
+Nashville,2026-10-27,expansion,29.29,0.01,49.95,79.23
+Orlando,2026-02-28,launch,57.99,0.0,0.0,57.99
+Orlando,2026-09-07,expansion,8.49,0.08,57.99,66.4
+Orlando,2026-10-27,expansion,52.16,0.2,66.4,118.36
+Phoenix,2024-02-12,launch,174.02,0.0,0.0,174.02
+Phoenix,2024-07-12,expansion,125.72,0.19,174.02,299.55
+Phoenix,2026-09-07,expansion,56.77,3.69,299.55,352.63
+San Antonio,2026-02-28,launch,53.09,0.0,0.0,53.09
+San Antonio,2026-10-14,expansion,6.33,0.57,53.09,58.84
+San Diego,2026-09-07,launch,46.15,0.0,0.0,46.15
+San Diego,2026-10-27,expansion,37.22,0.07,46.15,83.31
+San Francisco,2024-02-12,launch,44.37,0.0,0.0,44.37
+San Francisco,2024-08-08,expansion,9.69,0.01,44.37,54.04
+San Francisco,2025-03-18,expansion,27.03,0.0,54.04,81.08
+San Francisco,2025-06-17,expansion,53.29,0.12,81.08,134.25
+San Francisco,2025-11-13,expansion,127.39,0.06,134.25,261.58
+San Francisco,2025-12-03,expansion,5.86,1.07,261.58,266.36
+San Francisco,2026-01-31,expansion,13.3,1.86,266.36,277.8
+San Francisco,2026-06-06,expansion,62.98,2.22,277.8,338.56
+San Francisco,2026-10-27,expansion,10.06,0.72,338.56,347.91
+Tampa,2026-09-07,launch,45.37,0.0,0.0,45.37
