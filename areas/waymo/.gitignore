@@ -1,0 +1,9 @@
+# Regenerable: re-run the numbered scripts (see README)
+raw/
+qa/
+figures/*.png
+data/image_polygons.gpkg
+data/image_url_cache.json
+*.geojson
+__pycache__/
+*.log
