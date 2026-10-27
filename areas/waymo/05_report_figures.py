@@ -69,29 +69,62 @@ def daily_total(ts, end):
     """Total area per day (carry each metro's last known area forward)."""
     w = ts.pivot_table(index="date", columns="metro", values="area_mi2", aggfunc="last")
     # run a few days past the last snapshot so a step plot shows the last change
-    w = w.reindex(pd.date_range(w.index.min(), end + pd.Timedelta(days=5), freq="D")).ffill()
+    w = w.reindex(pd.date_range(w.index.min(), end + pd.Timedelta(days=30), freq="D")).ffill()
     return w
 
 
 # ---------------------------------------------------------------- figures
 
+def _shades(c_light, c_dark, n):
+    """n colours from light to dark, interleaved so neighbouring bands differ."""
+    from matplotlib.colors import LinearSegmentedColormap
+    cm = LinearSegmentedColormap.from_list("r", [c_light, c_dark])
+    ramp = [cm(t) for t in (np.linspace(0, 1, n) if n > 1 else [0.6])]
+    half = (n + 1) // 2  # alternate light half / dark half
+    return [ramp[i // 2] if i % 2 == 0 else ramp[half + i // 2] for i in range(n)]
+
+
 def fig_total(W):
-    orig = W[ORIGINAL].sum(axis=1)
-    newer = W.drop(columns=ORIGINAL).sum(axis=1)
-    fig, ax = plt.subplots(figsize=(8, 3.8))
-    ax.stackplot(W.index, orig, newer, colors=[BLUE, ORANGE], step="post",
-                 edgecolor=SURFACE, linewidth=0.8)
-    end = W.index[-1]
-    ax.annotate(f"{orig.iloc[-1] + newer.iloc[-1]:,.0f} sq mi", (end, orig.iloc[-1] + newer.iloc[-1]),
-                xytext=(-4, 6), textcoords="offset points", ha="right", fontsize=9)
+    """Stacked area per metro: original three in blues, newer metros in oranges."""
+    first = {m: W[m].first_valid_index() for m in W.columns}
+    newer = sorted((m for m in W.columns if m not in ORIGINAL), key=lambda m: first[m])
+    orig = sorted(ORIGINAL, key=lambda m: first[m])
+    order = orig + newer
+    colors = _shades("#9ec5f4", "#0d366b", len(orig)) + _shades("#fbd0b9", "#a83a10", len(newer))
+    D = W[order].fillna(0)
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    ax.stackplot(D.index, *[D[m] for m in order], colors=colors, step="post",
+                 edgecolor=SURFACE, linewidth=0.5)
+    end = D.index[-1]
+    total = D.iloc[-1].sum()
+    ax.annotate(f"{total:,.0f} sq mi total", (end, total), xytext=(-4, 6),
+                textcoords="offset points", ha="right", fontsize=9, fontweight="bold")
+    # direct labels at the right edge, nudged apart so they don't overlap
+    tops = D.iloc[-1].cumsum()
+    mids = (tops - D.iloc[-1] / 2)[order].values
+    gap = total * 0.032
+    ys = mids.copy()
+    for i in range(1, len(ys)):
+        ys[i] = max(ys[i], ys[i - 1] + gap)
+    over = ys[-1] - (total - gap / 2)
+    if over > 0:  # push back down, keeping spacing
+        ys -= over
+        for i in range(len(ys) - 2, -1, -1):
+            ys[i] = min(ys[i], ys[i + 1] - gap)
+    for m, y_mid, y_lab, c in zip(order, mids, ys, colors):
+        ax.annotate(f"{m}  {D[m].iloc[-1]:,.0f}", (end, y_mid), xytext=(end + pd.Timedelta(days=40), y_lab),
+                    textcoords="data", va="center", fontsize=7.5, color=INK, annotation_clip=False,
+                    arrowprops=dict(arrowstyle="-", color=INK2, lw=0.5, shrinkA=0, shrinkB=0))
     ax.set_ylabel("sq mi")
-    ax.set_xlim(W.index[0], end)
+    ax.set_xlim(D.index[0], end)
+    ax.set_ylim(0, total * 1.08)
+    ax.xaxis.set_major_locator(mdates.MonthLocator(bymonth=(1, 7)))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
-    ax.legend(handles=[Patch(color=BLUE, label="Phoenix, SF Bay Area, LA"),
-                       Patch(color=ORANGE, label="12 newer metros")],
+    ax.legend(handles=[Patch(color=colors[1], label="Phoenix, SF Bay Area, LA"),
+                       Patch(color=colors[len(orig) + 3], label="12 newer metros")],
               loc="upper left", frameon=False)
-    ax.set_title("Total Waymo service area", loc="left", fontsize=11)
-    fig.tight_layout()
+    ax.set_title("Total Waymo service area, by metro", loc="left", fontsize=11)
+    fig.tight_layout(rect=(0, 0, 0.83, 1))
     fig.savefig(OUT / "total_area.svg")
     plt.close(fig)
 
@@ -185,21 +218,119 @@ def fig_same_scale(mv):
     plt.close(fig)
 
 
-def fig_versions_map(mv, metro, fname):
-    g = mv[mv.metro == metro].sort_values("valid_from").to_crs(3857)
-    k = len(g)
-    cols = [SEQ[i] for i in np.linspace(0, len(SEQ) - 1, k).round().astype(int)]
-    fig, ax = plt.subplots(figsize=(6.5, 6.5))
-    for (_, r), c in reversed(list(zip(g.iterrows(), cols))):
-        gpd.GeoSeries([r.geometry], crs=3857).simplify(25).plot(ax=ax, color=c, edgecolor=SURFACE,
-                                                                linewidth=0.6)
-    ax.set_axis_off()
-    ax.legend(handles=[Patch(color=c, label=f"{r.valid_from:%Y-%m-%d}  ({r.area_mi2:,.0f} sq mi)")
-                       for (_, r), c in zip(g.iterrows(), cols)],
-              title="first seen", loc="lower left", fontsize=8, title_fontsize=8, frameon=False)
-    ax.set_title(f"{metro}: every service-area version", loc="left", fontsize=11)
-    fig.tight_layout()
-    fig.savefig(OUT / fname)
+def fig_growth_grid(mv, end):
+    """Service area over time per metro, every panel on the same axes."""
+    end = end + pd.Timedelta(days=30)  # room to see the latest jump
+    steps = {}
+    for m, g in mv.sort_values("valid_from").groupby("metro"):
+        x = list(g.valid_from) + [end]
+        y = list(g.area_mi2) + [g.area_mi2.iloc[-1]]
+        steps[m] = (x, y)
+    order = sorted(steps, key=lambda m: -steps[m][1][-1])
+    ncols = 5
+    nrows = int(np.ceil(len(order) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(10, 2.0 * nrows + 0.6),
+                             sharex=True, sharey=True)
+    x0 = pd.Timestamp("2024-01-01")
+    ymax = max(y[-1] for _, y in steps.values()) * 1.18
+    for ax, m in zip(axes.flat, order):
+        for o in order:  # all other metros as faint context
+            if o != m:
+                ax.step(*steps[o], where="post", color=GRID, lw=0.9, zorder=1)
+        x, y = steps[m]
+        ax.fill_between(x, y, step="post", color=BLUE, alpha=0.18, lw=0, zorder=2)
+        ax.step(x, y, where="post", color=BLUE, lw=1.8, zorder=3)
+        ax.plot(x[0], y[0], "o", color=ORANGE, ms=4.5, mec=SURFACE, mew=1, zorder=4)
+        ax.annotate(f"{y[-1]:,.0f}", (x[-1], y[-1]), xytext=(-2, 4), textcoords="offset points",
+                    ha="right", va="bottom", fontsize=8, color=INK, fontweight="bold")
+        ax.set_title(m, loc="left", fontsize=9)
+        ax.grid(axis="x", visible=False)
+        ax.set_xlim(x0, end); ax.set_ylim(0, ymax)
+        ax.set_yticks([0, 100, 200, 300])
+        ax.xaxis.set_major_locator(mdates.YearLocator())
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+        ax.tick_params(length=0, labelsize=8)
+    for ax in axes.flat[len(order):]:
+        ax.set_axis_off()
+    for ax in axes[:, 0]:
+        ax.set_ylabel("sq mi")
+    fig.legend(handles=[Line2D([], [], color=BLUE, lw=1.8, label="service area"),
+                        Line2D([], [], marker="o", ls="", color=ORANGE, ms=5, label="first map"),
+                        Line2D([], [], color=GRID, lw=1.2, label="other metros")],
+               loc="upper right", ncols=3, frameon=False, fontsize=8)
+    fig.suptitle("Service area over time, all metros on the same scale",
+                 x=0.01, ha="left", fontsize=11)
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
+    fig.savefig(OUT / "growth_grid.svg")
+    plt.close(fig)
+
+
+# a few reference places (lon, lat) so readers can orient themselves
+PLACES = {
+    "San Francisco": {"San Francisco": (-122.44, 37.76), "San Mateo": (-122.31, 37.56),
+                      "Palo Alto": (-122.14, 37.44), "San José": (-121.89, 37.335)},
+    "Los Angeles": {"Santa Monica": (-118.49, 34.02), "Downtown": (-118.25, 34.05),
+                    "LAX": (-118.41, 33.94), "Torrance": (-118.34, 33.835)},
+}
+
+
+def add_basemap(ax):
+    try:
+        import contextily as cx
+        cx.add_basemap(ax, crs=3857, source=cx.providers.Esri.WorldGrayCanvas,
+                       attribution=False, zorder=0)
+    except Exception as e:  # offline: draw without basemap
+        print(f"basemap skipped: {e}")
+
+
+def fig_versions_map(mv, metro, fname, ncols=3):
+    """One panel per service-area version: earlier area in blue, newly added area in orange."""
+    g = mv[mv.metro == metro].sort_values("valid_from").to_crs(3857).reset_index(drop=True)
+    g["geometry"] = g.geometry.simplify(25)
+    x0, y0, x1, y1 = g.total_bounds
+    pad = 0.06 * max(x1 - x0, y1 - y0)
+    x0, y0, x1, y1 = x0 - pad, y0 - pad, x1 + pad, y1 + pad
+    n = len(g)
+    nrows = int(np.ceil(n / ncols))
+    w = 10 / ncols
+    h = w * (y1 - y0) / (x1 - x0) + 0.45  # room for the panel title
+    fig, axes = plt.subplots(nrows, ncols, figsize=(10, h * nrows + 0.5))
+    places = gpd.GeoSeries(gpd.points_from_xy(*zip(*PLACES[metro].values())), crs=4326).to_crs(3857)
+    for i, (ax, (_, r)) in enumerate(zip(axes.flat, g.iterrows())):
+        ax.set_xlim(x0, x1); ax.set_ylim(y0, y1)
+        add_basemap(ax)
+        prev = g.geometry.iloc[i - 1] if i else None
+        if prev is not None:
+            kept = r.geometry.intersection(prev)
+            added = r.geometry.difference(prev)
+            gpd.GeoSeries([kept], crs=3857).plot(ax=ax, color=BLUE, alpha=0.55, zorder=2)
+        else:
+            added = r.geometry
+        gpd.GeoSeries([added], crs=3857).plot(ax=ax, color=ORANGE, zorder=3)
+        if prev is not None:  # anything dropped from the previous version
+            lost = prev.difference(r.geometry)
+            if mi2(gpd.GeoSeries([lost], crs=3857).to_crs(4326).iloc[0]) > 0.5:
+                gpd.GeoSeries([lost], crs=3857).plot(ax=ax, facecolor="none", edgecolor=INK2,
+                                                     linewidth=0.6, linestyle=(0, (2, 1.5)), zorder=3)
+        gpd.GeoSeries([r.geometry], crs=3857).boundary.plot(ax=ax, color=INK, linewidth=0.4, zorder=4)
+        if i == n - 1:  # orientation labels on the latest map
+            for (name, _), pt in zip(PLACES[metro].items(), places):
+                ax.plot(pt.x, pt.y, "o", ms=2.5, color=INK, zorder=5)
+                ax.annotate(name, (pt.x, pt.y), xytext=(4, 2), textcoords="offset points",
+                            fontsize=7, color=INK, zorder=5,
+                            bbox=dict(boxstyle="round,pad=0.15", fc=SURFACE, ec="none", alpha=0.75))
+        delta = "" if prev is None else f"  +{r.area_mi2 - g.area_mi2.iloc[i - 1]:,.0f}"
+        ax.set_title(f"{r.valid_from:%b} {r.valid_from.day} {r.valid_from.year}", loc="left", fontsize=9, fontweight="bold")
+        ax.set_title(f"{r.area_mi2:,.0f} sq mi{delta}", loc="right", fontsize=8, color=INK2)
+        ax.set_aspect("equal"); ax.set_axis_off()
+    for ax in axes.flat[n:]:
+        ax.set_axis_off()
+    fig.legend(handles=[Patch(color=ORANGE, label="new in this version"),
+                        Patch(color=BLUE, alpha=0.55, label="already served")],
+               loc="upper right", ncols=2, frameon=False, fontsize=8)
+    fig.suptitle(f"{metro}: how the service area grew", x=0.01, ha="left", fontsize=11)
+    fig.tight_layout(rect=(0, 0, 1, 0.97))
+    fig.savefig(OUT / fname, dpi=150)
     plt.close(fig)
 
 
@@ -254,6 +385,7 @@ def main():
     fig_timeline(E, end)
     fig_launch_vs_now(E)
     fig_same_scale(mv)
+    fig_growth_grid(mv, end)
     fig_versions_map(mv, "San Francisco", "versions_san_francisco.svg")
     fig_versions_map(mv, "Los Angeles", "versions_los_angeles.svg")
     S = stats(mv, v, ts, E, W)

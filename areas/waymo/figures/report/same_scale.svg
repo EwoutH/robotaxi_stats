@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-10-27T22:17:47.998263</dc:date>
+    <dc:date>2026-10-27T23:01:09.823469</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -326,7 +326,7 @@ L 51.905922 93.918525
 L 51.615845 93.483764 
 L 51.507299 93.19408 
 z
-" clip-path="url(#pa77d416229)" style="fill: #2a78d6"/>
+" clip-path="url(#p19c2b8b6bd)" style="fill: #2a78d6"/>
    </g>
    <g id="text_1">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(11.204155 31.701261)">Phoenix</text>
@@ -902,7 +902,7 @@ L 177.147742 68.484779
 L 177.103906 66.454322 
 L 176.951545 66.301528 
 z
-" clip-path="url(#p2c299bf142)" style="fill: #2a78d6"/>
+" clip-path="url(#p7e6b71a2fe)" style="fill: #2a78d6"/>
    </g>
    <g id="text_2">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(153.260155 31.701261)">San Francisco</text>
@@ -1102,7 +1102,7 @@ L 343.980465 110.516727
 L 340.994566 106.807398 
 L 340.13743 105.602903 
 z
-" clip-path="url(#pfdd6a9ee2e)" style="fill: #2a78d6"/>
+" clip-path="url(#p944173de83)" style="fill: #2a78d6"/>
    </g>
    <g id="text_3">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(295.316155 31.701261)">Los Angeles</text>
@@ -1263,7 +1263,7 @@ L 484.561414 116.23699
 L 484.536891 115.890958 
 L 484.238885 115.692957 
 z
-" clip-path="url(#pc34341c4f9)" style="fill: #2a78d6"/>
+" clip-path="url(#pac4a217b50)" style="fill: #2a78d6"/>
    </g>
    <g id="text_4">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(437.372155 31.701261)">Miami</text>
@@ -1543,7 +1543,7 @@ L 628.044092 129.110323
 L 627.91436 128.980971 
 L 627.524815 128.928871 
 z
-" clip-path="url(#pae82cf4f9c)" style="fill: #2a78d6"/>
+" clip-path="url(#p22e6037d69)" style="fill: #2a78d6"/>
    </g>
    <g id="text_5">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(579.428155 31.701261)">Austin</text>
@@ -1699,7 +1699,7 @@ L 60.531442 274.408469
 L 60.25569 274.099277 
 L 60.100451 274.064804 
 z
-" clip-path="url(#p4cb9c9af19)" style="fill: #2a78d6"/>
+" clip-path="url(#p86ab688f50)" style="fill: #2a78d6"/>
    </g>
    <g id="text_6">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(11.204155 181.205624)">Orlando</text>
@@ -1931,7 +1931,7 @@ L 202.998607 275.051992
 L 202.999138 274.573569 
 L 202.768752 274.286266 
 z
-" clip-path="url(#pce31b9d3bc)" style="fill: #2a78d6"/>
+" clip-path="url(#pb133738bf0)" style="fill: #2a78d6"/>
    </g>
    <g id="text_7">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(153.260155 181.205624)">Atlanta</text>
@@ -2221,7 +2221,7 @@ L 349.064315 255.967917
 L 348.797103 254.950717 
 L 348.898046 254.400655 
 z
-" clip-path="url(#p4dda0761af)" style="fill: #2a78d6"/>
+" clip-path="url(#pcdab606784)" style="fill: #2a78d6"/>
    </g>
    <g id="text_8">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(295.316155 181.205624)">San Diego</text>
@@ -2412,7 +2412,7 @@ L 489.456289 260.579009
 L 488.521552 260.049866 
 L 488.633849 259.480171 
 z
-" clip-path="url(#pd1ce0b471e)" style="fill: #2a78d6"/>
+" clip-path="url(#p1190b496ba)" style="fill: #2a78d6"/>
    </g>
    <g id="text_9">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(437.372155 181.205624)">Nashville</text>
@@ -2579,7 +2579,7 @@ L 648.6589 259.404892
 L 648.456188 259.243638 
 L 647.969789 259.243764 
 z
-" clip-path="url(#p2fe008e89b)" style="fill: #2a78d6"/>
+" clip-path="url(#p96f135a6bc)" style="fill: #2a78d6"/>
    </g>
    <g id="text_10">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(579.428155 181.205624)">San Antonio</text>
@@ -2752,7 +2752,7 @@ L 77.43431 406.540703
 L 77.281087 406.438989 
 L 76.681019 406.43905 
 z
-" clip-path="url(#p1007c0b697)" style="fill: #2a78d6"/>
+" clip-path="url(#p241012497d)" style="fill: #2a78d6"/>
    </g>
    <g id="text_11">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(11.204155 330.709986)">Denver</text>
@@ -2923,7 +2923,7 @@ L 211.726182 408.07155
 L 211.637035 408.008142 
 L 211.178431 408.020625 
 z
-" clip-path="url(#p55b5ee29f1)" style="fill: #2a78d6"/>
+" clip-path="url(#p3a2d39d4fd)" style="fill: #2a78d6"/>
    </g>
    <g id="text_12">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(153.260155 330.709986)">Houston</text>
@@ -3073,7 +3073,7 @@ L 365.282195 416.449684
 L 365.098166 416.327678 
 L 364.619817 416.35226 
 z
-" clip-path="url(#p7b40b38c46)" style="fill: #2a78d6"/>
+" clip-path="url(#p7a1675c793)" style="fill: #2a78d6"/>
    </g>
    <g id="text_13">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(295.316155 330.709986)">Dallas</text>
@@ -3179,7 +3179,7 @@ L 491.250718 411.694376
 L 491.163715 408.750882 
 L 490.9352 408.674943 
 z
-" clip-path="url(#p48dd8daae4)" style="fill: #2a78d6"/>
+" clip-path="url(#p35716db6f8)" style="fill: #2a78d6"/>
    </g>
    <g id="text_14">
     <text style="font-size: 8.5px; font-family: 'DejaVu Sans'; fill: #0b0b0b" transform="translate(437.372155 330.709986)">Tampa</text>
@@ -3238,12 +3238,12 @@ L 648.184856 410.91698
 L 648.04537 410.833717 
 L 647.692079 410.852338 
 z
-" clip-path="url(#pec91d84a0e)" style="fill: #2a78d6"/>
+" clip-path="url(#p09c277b183)" style="fill: #2a78d6"/>
    </g>
    <g id="line2d_1">
     <path d="M 585.89654 469.811616 
 L 614.019951 469.811616 
-" clip-path="url(#pec91d84a0e)" style="fill: none; stroke: #0b0b0b; stroke-width: 2; stroke-linecap: square"/>
+" clip-path="url(#p09c277b183)" style="fill: none; stroke: #0b0b0b; stroke-width: 2; stroke-linecap: square"/>
    </g>
    <g id="text_15">
     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="585.89654" y="463.343231" transform="rotate(-0 585.89654 463.343231)">20 km</text>
@@ -3258,49 +3258,49 @@ L 614.019951 469.811616
   </g>
  </g>
  <defs>
-  <clipPath id="pa77d416229">
+  <clipPath id="p19c2b8b6bd">
    <rect x="11.204155" y="47.903586" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p2c299bf142">
+  <clipPath id="p7e6b71a2fe">
    <rect x="153.260155" y="47.903586" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="pfdd6a9ee2e">
+  <clipPath id="p944173de83">
    <rect x="295.316155" y="47.903586" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="pc34341c4f9">
+  <clipPath id="pac4a217b50">
    <rect x="437.372155" y="47.903586" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="pae82cf4f9c">
+  <clipPath id="p22e6037d69">
    <rect x="579.428155" y="47.903586" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p4cb9c9af19">
+  <clipPath id="p86ab688f50">
    <rect x="11.204155" y="197.407948" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="pce31b9d3bc">
+  <clipPath id="pb133738bf0">
    <rect x="153.260155" y="197.407948" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p4dda0761af">
+  <clipPath id="pcdab606784">
    <rect x="295.316155" y="197.407948" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="pd1ce0b471e">
+  <clipPath id="p1190b496ba">
    <rect x="437.372155" y="197.407948" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p2fe008e89b">
+  <clipPath id="p96f135a6bc">
    <rect x="579.428155" y="197.407948" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p1007c0b697">
+  <clipPath id="p241012497d">
    <rect x="11.204155" y="346.912311" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p55b5ee29f1">
+  <clipPath id="p3a2d39d4fd">
    <rect x="153.260155" y="346.912311" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p7b40b38c46">
+  <clipPath id="p7a1675c793">
    <rect x="295.316155" y="346.912311" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="p48dd8daae4">
+  <clipPath id="p35716db6f8">
    <rect x="437.372155" y="346.912311" width="129.367689" height="129.367689"/>
   </clipPath>
-  <clipPath id="pec91d84a0e">
+  <clipPath id="p09c277b183">
    <rect x="579.428155" y="346.912311" width="129.367689" height="129.367689"/>
   </clipPath>
  </defs>

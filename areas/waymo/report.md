@@ -49,8 +49,13 @@ only recent large launch. The 2024 Phoenix launch (174 sq mi) reflects an older,
 already-mature market.
 
 Metros then grow fast. SF grew **×7.8** (44 → 348 sq mi), Austin ×4.2, LA ×3.8 and
-Miami ×2.9 in just four months. Five metros still carry the label "Gradually adding
-riders" (Dallas, Denver, Houston, Las Vegas, Tampa: 224 sq mi, 12% of the total).
+Miami ×2.9 in just four months.
+
+![Service area over time per metro](figures/report/growth_grid.svg)
+
+On the same scale, the gap is clear: Phoenix and SF are now about 350 sq mi each, LA
+213, and Miami and Austin about 150. Six of the ten 2026 launches are still under
+60 sq mi. Five metros still carry the label "Gradually adding riders" (Dallas, Denver, Houston, Las Vegas, Tampa: 224 sq mi, 12% of the total).
 
 ## Biggest single expansions
 
@@ -83,6 +88,9 @@ error between map versions rather than a real cutback.
 - Most 2026 launches fit in a 15–25 km box.
 
 ## How SF and LA grew
+
+Each panel is one version of the map: orange is new in that version, blue was already
+served. All panels for a metro share the same extent. Basemap: Esri World Light Gray Canvas.
 
 ![San Francisco versions](figures/report/versions_san_francisco.svg)
 
