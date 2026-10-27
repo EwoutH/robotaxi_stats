@@ -4,6 +4,8 @@
 (see [README.md](README.md) for method and accuracy). All areas are as drawn by
 Waymo, in square miles; figures and numbers come from [05_report_figures.py](05_report_figures.py).*
 
+*Who lives inside these areas (2020 Census): see [report_population.md](report_population.md).*
+
 ## Key numbers
 
 | | |

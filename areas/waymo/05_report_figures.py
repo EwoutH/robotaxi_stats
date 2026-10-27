@@ -84,7 +84,8 @@ def _shades(c_light, c_dark, n):
     return [ramp[i // 2] if i % 2 == 0 else ramp[half + i // 2] for i in range(n)]
 
 
-def fig_total(W):
+def fig_total(W, ylabel="sq mi", total_fmt="{:,.0f} sq mi total", fmt="{:,.0f}",
+              title="Total Waymo service area, by metro", fname="total_area.svg"):
     """Stacked area per metro: original three in blues, newer metros in oranges."""
     first = {m: W[m].first_valid_index() for m in W.columns}
     newer = sorted((m for m in W.columns if m not in ORIGINAL), key=lambda m: first[m])
@@ -97,7 +98,7 @@ def fig_total(W):
                  edgecolor=SURFACE, linewidth=0.5)
     end = D.index[-1]
     total = D.iloc[-1].sum()
-    ax.annotate(f"{total:,.0f} sq mi total", (end, total), xytext=(-4, 6),
+    ax.annotate(total_fmt.format(total), (end, total), xytext=(-4, 6),
                 textcoords="offset points", ha="right", fontsize=9, fontweight="bold")
     # direct labels at the right edge, nudged apart so they don't overlap
     tops = D.iloc[-1].cumsum()
@@ -112,10 +113,10 @@ def fig_total(W):
         for i in range(len(ys) - 2, -1, -1):
             ys[i] = min(ys[i], ys[i + 1] - gap)
     for m, y_mid, y_lab, c in zip(order, mids, ys, colors):
-        ax.annotate(f"{m}  {D[m].iloc[-1]:,.0f}", (end, y_mid), xytext=(end + pd.Timedelta(days=40), y_lab),
+        ax.annotate(f"{m}  {fmt.format(D[m].iloc[-1])}", (end, y_mid), xytext=(end + pd.Timedelta(days=40), y_lab),
                     textcoords="data", va="center", fontsize=7.5, color=INK, annotation_clip=False,
                     arrowprops=dict(arrowstyle="-", color=INK2, lw=0.5, shrinkA=0, shrinkB=0))
-    ax.set_ylabel("sq mi")
+    ax.set_ylabel(ylabel)
     ax.set_xlim(D.index[0], end)
     ax.set_ylim(0, total * 1.08)
     ax.xaxis.set_major_locator(mdates.MonthLocator(bymonth=(1, 7)))
@@ -123,9 +124,9 @@ def fig_total(W):
     ax.legend(handles=[Patch(color=colors[1], label="Phoenix, SF Bay Area, LA"),
                        Patch(color=colors[len(orig) + 3], label="12 newer metros")],
               loc="upper left", frameon=False)
-    ax.set_title("Total Waymo service area, by metro", loc="left", fontsize=11)
+    ax.set_title(title, loc="left", fontsize=11)
     fig.tight_layout(rect=(0, 0, 0.83, 1))
-    fig.savefig(OUT / "total_area.svg")
+    fig.savefig(OUT / fname)
     plt.close(fig)
 
 
