@@ -1,0 +1,72 @@
+name: Waymo service-area maps
+
+# Daily check of Waymo's help pages for new service-area maps.
+# Saves changed pages and new maps to waymo_area/live/, asks the Wayback Machine
+# to capture them, and opens an issue when a new map appears (it still needs
+# georeferencing by hand: see waymo_area/README.md).
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: waymo-maps
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests
+
+      - name: Check live pages
+        id: check
+        working-directory: waymo_area
+        env:
+          SUMMARY_FILE: ${{ runner.temp }}/summary.md
+          # Optional: archive.org S3 keys (https://archive.org/account/s3.php) for
+          # the authenticated Save Page Now API. Without them the anonymous one is used.
+          IA_ACCESS_KEY: ${{ secrets.IA_ACCESS_KEY }}
+          IA_SECRET_KEY: ${{ secrets.IA_SECRET_KEY }}
+        run: python 07_watch_live.py
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add waymo_area/live
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "Waymo maps: live capture $(date -u +%Y-%m-%d)"
+            git pull --rebase
+            git push
+          fi
+
+      - name: Open issue for new maps
+        if: steps.check.outputs.new_maps != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "The daily check found ${{ steps.check.outputs.new_maps }} new map(s) on Waymo's help pages:"
+            echo
+            cat "$RUNNER_TEMP/summary.md"
+            echo
+            echo "Saved in \`waymo_area/live/\`. To add them to the dataset, run steps 1-6 (see \`waymo_area/README.md\`) and check the new \`qa/\` images."
+            echo
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > body.md
+          gh issue create --title "New Waymo service-area map(s) $(date -u +%Y-%m-%d)" --body-file body.md

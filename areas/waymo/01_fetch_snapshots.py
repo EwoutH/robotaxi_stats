@@ -9,7 +9,9 @@ Outputs
   data/snapshot_images.csv         one row per (snapshot, city, image)
 """
 import csv
+import gzip
 import hashlib
+import shutil
 import json
 import re
 import time
@@ -23,6 +25,7 @@ ROOT = Path(__file__).parent
 SNAP_DIR = ROOT / "raw" / "snapshots"
 IMG_DIR = ROOT / "raw" / "images"
 DATA_DIR = ROOT / "data"
+LIVE_DIR = ROOT / "live"  # committed captures from the daily CI check
 for d in (SNAP_DIR, IMG_DIR, DATA_DIR):
     d.mkdir(parents=True, exist_ok=True)
 
@@ -133,6 +136,25 @@ def download_image(url, ts):
     return "", ""
 
 
+def import_live_captures():
+    """Pages and maps saved by the daily CI check (07_watch_live.py) in live/.
+    Copied into raw/ and returned as extra snapshots."""
+    out = []
+    for p in sorted((LIVE_DIR / "pages").glob("*.html.gz")):
+        page, ts = p.name.removesuffix(".html.gz").split("_")
+        dst = SNAP_DIR / (f"{ts}.html" if page == MAIN else f"{page}_{ts}.html")
+        if not dst.exists():
+            with gzip.open(p, "rt", encoding="utf-8") as f:
+                dst.write_text(f.read(), encoding="utf-8")
+        out.append((ts, "ci", page))
+    for p in (LIVE_DIR / "images").glob("*"):
+        if not (IMG_DIR / p.name).exists():
+            shutil.copy(p, IMG_DIR / p.name)
+    if out:
+        print(len(out), "pages from live/")
+    return out
+
+
 def main():
     snaps = []
     today = time.strftime("%Y%m%d%H%M%S")
@@ -144,8 +166,14 @@ def main():
             rows.append(live)
         snaps += [(ts, orig, page) for ts, orig, _ in rows]
         print(page, len(rows), "snapshots")
+    snaps += import_live_captures()
     cache_path = DATA_DIR / "image_url_cache.json"
     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    # maps saved by the daily CI check, in case Google has removed them since
+    if (LIVE_DIR / "changes.csv").exists():
+        for r in csv.DictReader(open(LIVE_DIR / "changes.csv", encoding="utf-8")):
+            if r["image_url"] and not cache.get(r["image_url"], ("",))[0]:
+                cache[r["image_url"]] = (r["image_file"], "live/images")
     rows = []
     for ts, original, page in snaps:
         html = fetch_snapshot(ts, original, page)

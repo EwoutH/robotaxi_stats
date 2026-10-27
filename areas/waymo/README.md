@@ -112,6 +112,25 @@ curl -o raw/census/tl_2023_us_uac20.zip https://www2.census.gov/geo/tiger/TIGER2
 
 Each state is read once (CA/TX take a minute) and cached as `raw/census/blocks_<fips>.parquet`.
 
+### Daily check (GitHub Action)
+
+`.github/workflows/waymo_maps.yml` runs `07_watch_live.py` every day at 06:17 UTC
+(or by hand via *Run workflow*). It fetches both live pages and compares the cities,
+notes and map images with `live/state.json`. On a change it commits:
+
+- `live/pages/<page>_<timestamp>.html.gz`: the page as fetched
+- `live/images/<sha1>.png`: each map not seen before
+- `live/changes.csv`: one row per city added, removed, given a new map or changed text
+
+It also asks the Wayback Machine to capture the page and the new maps. This uses the
+anonymous Save Page Now endpoint, or the authenticated API if the repo secrets
+`IA_ACCESS_KEY` / `IA_SECRET_KEY` are set (keys from https://archive.org/account/s3.php).
+A new map opens a GitHub issue, because it still needs the steps below.
+The job fails (and GitHub emails you) if a page can't be fetched or parsed.
+
+`01_fetch_snapshots.py` reads `live/` as extra snapshots, so after a `git pull` the
+steps below pick up the CI captures, even if Google has since removed the map.
+
 After step 2, look at the new `qa/*.jpg` files: the red OSM roads should run along
 the grey roads and through the highway shields. If a fit is wrong, add a row to
 `data/manual_georef.csv` (`image_file, s, x0, y0`), delete that image's row in
@@ -177,5 +196,5 @@ from re-downloaded images without redoing the slow fit. Keep a local copy of
 - Airports and freeways: these are announced separately and not drawn on these maps.
 - Other sources with dated maps, e.g. `waymo.com` city pages, press releases, or
   the CPUC/CA DMV ODD maps, to tighten change dates or go back before Feb 2024.
-- Run step 1 on a schedule (e.g. a GitHub Action) so changes are captured within a day
-  instead of relying on the archive's irregular snapshots.
+- Automate steps 2-5 in CI for new maps. Needs the OSM extracts (several GB) and a
+  human look at the QA image, so for now the daily check only saves and reports.
