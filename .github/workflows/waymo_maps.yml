@@ -1,9 +1,9 @@
 name: Waymo service-area maps
 
 # Daily check of Waymo's help pages for new service-area maps.
-# Saves changed pages and new maps to waymo_area/live/, asks the Wayback Machine
+# Saves changed pages and new maps to areas/waymo/live/, asks the Wayback Machine
 # to capture them, and opens an issue when a new map appears (it still needs
-# georeferencing by hand: see waymo_area/README.md).
+# georeferencing by hand: see areas/waymo/README.md).
 
 on:
   schedule:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Check live pages
         id: check
-        working-directory: waymo_area
+        working-directory: areas/waymo
         env:
           SUMMARY_FILE: ${{ runner.temp }}/summary.md
           # Optional: archive.org S3 keys (https://archive.org/account/s3.php) for
@@ -46,7 +46,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add waymo_area/live
+          git add areas/waymo/live
           if git diff --cached --quiet; then
             echo "Nothing to commit"
           else
@@ -65,7 +65,7 @@ jobs:
             echo
             cat "$RUNNER_TEMP/summary.md"
             echo
-            echo "Saved in \`waymo_area/live/\`. To add them to the dataset, run steps 1-6 (see \`waymo_area/README.md\`) and check the new \`qa/\` images."
+            echo "Saved in \`areas/waymo/live/\`. To add them to the dataset, run steps 1-6 (see \`areas/waymo/README.md\`) and check the new \`qa/\` images."
             echo
             echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           } > body.md
