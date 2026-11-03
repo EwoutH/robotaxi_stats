@@ -1,0 +1,10 @@
+# robotaxi_stats
+
+Public repo with data and analysis on robotaxi services, one folder per topic under `areas/` (and later possibly other top-level folders, e.g. `safety/`).
+
+- `areas/waymo/`: Waymo service areas over time. Numbered scripts `01_`..`07_` build the dataset; see its README. Run with the system `python` (`ds` environment). Regenerable inputs (`raw/`, `qa/`) are gitignored and stay local.
+- CI: `.github/workflows/waymo_maps.yml` runs `areas/waymo/07_watch_live.py` daily on GitHub Actions, commits new captures to `areas/waymo/live/` and opens an issue for new maps. Optional secrets: `IA_ACCESS_KEY`, `IA_SECRET_KEY`.
+
+## Status
+
+Moved from `EwoutH/sandbox1/waymo_area` on 2026-11-03 with full history. Nothing in progress.
