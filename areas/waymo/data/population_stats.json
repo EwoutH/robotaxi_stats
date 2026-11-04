@@ -5,12 +5,12 @@
   11.62
  ],
  "residents_first_snapshot_m": 1.65,
- "residents_year_ago_m": 5.45,
+ "residents_year_ago_m": 5.05,
  "housing_units_now_m": 5.17,
  "share_original_three_now": 0.576,
  "density_now_mi2": 6183,
  "land_share_of_drawn_area": 0.97,
- "metros_launch_denser_than_later": "10 of 10",
+ "metros_launch_denser_than_later": "11 of 11",
  "launch_vs_later_density": {
   "Orlando": {
    "launch": 3503.0,
@@ -28,9 +28,13 @@
    "launch": 4668.0,
    "later": 3158.0
   },
+  "Atlanta": {
+   "launch": 5642.0,
+   "later": 3466.0
+  },
   "Austin": {
    "launch": 6281.0,
-   "later": 3758.0
+   "later": 3748.0
   },
   "Houston": {
    "launch": 7715.0,
@@ -277,14 +281,6 @@
    "density_added_mi2": 5530.0
   },
   {
-   "metro": "Atlanta",
-   "date": "2025-06-12",
-   "kind": "launch",
-   "area_added_mi2": 112.0,
-   "pop_added": 511153.0,
-   "density_added_mi2": 4603.0
-  },
-  {
    "metro": "Miami",
    "date": "2026-01-31",
    "kind": "launch",
@@ -293,12 +289,20 @@
    "density_added_mi2": 10310.0
   },
   {
-   "metro": "Austin",
-   "date": "2025-06-12",
+   "metro": "Miami",
+   "date": "2026-06-06",
    "kind": "expansion",
-   "area_added_mi2": 115.0,
-   "pop_added": 429643.0,
-   "density_added_mi2": 3758.0
+   "area_added_mi2": 62.0,
+   "pop_added": 422986.0,
+   "density_added_mi2": 7204.0
+  },
+  {
+   "metro": "Los Angeles",
+   "date": "2025-07-02",
+   "kind": "expansion",
+   "area_added_mi2": 35.0,
+   "pop_added": 376491.0,
+   "density_added_mi2": 10961.0
   }
  ]
 }

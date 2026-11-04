@@ -1,7 +1,10 @@
 metro,date,kind,added,removed,before,after
-Atlanta,2025-06-12,launch,111.56,0.0,0.0,111.56
+Atlanta,2025-07-29,launch,58.33,0.0,0.0,58.33
+Atlanta,2026-09-16,expansion,53.23,0.0,58.33,111.56
 Austin,2024-11-03,launch,35.49,0.0,0.0,35.49
-Austin,2025-06-12,expansion,114.66,0.02,35.49,150.13
+Austin,2025-07-17,expansion,53.9,0.0,35.49,89.38
+Austin,2026-01-13,expansion,43.03,0.11,89.38,132.29
+Austin,2026-09-16,expansion,18.19,0.36,132.29,150.13
 Dallas,2026-02-28,launch,47.42,0.0,0.0,47.42
 Denver,2026-09-07,launch,58.41,0.0,0.0,58.41
 Houston,2026-02-28,launch,22.45,0.0,0.0,22.45

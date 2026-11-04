@@ -37,16 +37,45 @@ def geod_area_km2(geom):
 
 def main():
     snaps = pd.read_csv(DATA / "snapshot_images.csv", dtype={"snapshot": str})
+    snaps["date_basis"] = "legacy_map_observation"
+    snaps["date_source_url"] = ""
+    verified_path = DATA / "snapshot_sources.csv"
+    if verified_path.exists():
+        verified = pd.read_csv(verified_path, dtype={"page": str, "snapshot": str}).fillna("")
+        evidence = {(r.page, r.snapshot, r.city, r.image_file): r.page_url
+                    for r in verified.itertuples()}
+        for i, row in snaps.iterrows():
+            key = (str(row.page), row.snapshot, row.city, row.image_file)
+            if key in evidence:
+                snaps.loc[i, "date_basis"] = "map_observation"
+                snaps.loc[i, "date_source_url"] = evidence[key]
+    # Curated dates are explicitly attributed to operator announcements rather
+    # than masquerading as captures at synthetic archive timestamps.
+    supplements_path = DATA / "history_sources.csv"
+    if supplements_path.exists():
+        extra = pd.read_csv(supplements_path).rename(columns={"source_url": "date_source_url"})
+        extra["snapshot"] = extra.date.str.replace("-", "") + "000000"
+        extra["page"] = "operator_announcement"
+        extra["note"] = ""
+        snaps = pd.concat([snaps, extra], ignore_index=True)
+    equivalents_path = DATA / "image_equivalences.csv"
+    if equivalents_path.exists():
+        eq = pd.read_csv(equivalents_path).set_index("image_file").canonical_image_file.to_dict()
+        snaps["observed_image_file"] = snaps.image_file
+        snaps["image_file"] = snaps.image_file.replace(eq)
     snaps["date"] = pd.to_datetime(snaps.date)
     snaps = snaps[snaps.image_file.notna()]
     # one observation per (day, city): if several captures on the same day disagree,
     # keep the latest capture of that day
     snaps = (snaps.sort_values("snapshot")
              .drop_duplicates(["date", "city", "image_file"], keep="last"))
-    all_dates = sorted(pd.read_csv(DATA / "snapshot_images.csv").date.map(pd.Timestamp).unique())
+    all_dates = sorted(snaps.date.unique())
     obs_dates = sorted(snaps.date.unique())
 
     polys = gpd.read_file(DATA / "image_polygons.gpkg").set_index("image_file")
+    missing = set(snaps.image_file) - set(polys.index)
+    if missing:
+        raise RuntimeError(f"Maps missing georeferenced polygons; run step 2 first: {sorted(missing)}")
 
     # ---- versions per city label ------------------------------------------
     recs = []
@@ -61,7 +90,8 @@ def main():
             else:
                 runs[-1][2] = d
         for i, (img, first, last) in enumerate(runs):
-            before = [x for x in obs_dates if x < first]
+            first_records = g[g.date == first]
+            basis = first_records.date_basis.iloc[0]
             nxt_run = runs[i + 1][1] if i + 1 < len(runs) else None
             if nxt_run is not None:
                 valid_to = nxt_run
@@ -72,10 +102,13 @@ def main():
             note = g[g.image_file == img].note.dropna()
             recs.append(dict(
                 city=city, metro=metro_of(city), image_file=img,
-                change_window_start=before[-1] if before else pd.NaT,
+                change_window_start=first if basis == "operator_announcement" else
+                    runs[i - 1][2] if i > 0 else pd.NaT,
                 valid_from=first, last_seen=last, valid_to=valid_to,
                 n_snapshots=int((g.image_file == img).sum()),
-                note=note.iloc[-1] if len(note) else ""))
+                note=note.iloc[-1] if len(note) else "",
+                date_basis=basis,
+                date_source_url=first_records.date_source_url.fillna("").iloc[0]))
     V = pd.DataFrame(recs)
     V = V.join(polys[["quality", "source", "clipped_by_frame", "geometry"]], on="image_file")
     V = gpd.GeoDataFrame(V, geometry="geometry", crs=4326)
@@ -101,6 +134,9 @@ def main():
             if last_key.get(metro) != key:
                 mv.append(dict(metro=metro, valid_from=d, images=";".join(key),
                                city_labels=";".join(sorted(g.city)),
+                               change_window_start=g.change_window_start.max(),
+                               date_basis=";".join(sorted(set(g.date_basis))),
+                               date_source_url=";".join(sorted(set(g.date_source_url) - {""})),
                                min_quality=g.quality.min(), geometry=geom,
                                area_km2=round(area, 2), area_mi2=round(area / KM2_PER_MI2, 2)))
                 last_key[metro] = key

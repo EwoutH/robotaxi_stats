@@ -6,9 +6,17 @@ the map images on Waymo's help pages as archived by the Wayback Machine:
 - https://support.google.com/waymo/answer/9059119 (service areas, Feb 2024 to now)
 - https://support.google.com/waymo/answer/16011725 (Austin & Atlanta on Uber, Jun 2025 to now)
 
-Waymo publishes these areas only as styled PNG maps with no coordinates, and no
-existing polygon archive was found. This folder rebuilds them as vector data:
-42 map versions across 15 metros, from Feb 2024 to Oct 27 2026.
+Waymo publishes these areas as styled PNG maps with no coordinates.
+This folder rebuilds them as vector data:
+45 canonical map versions across 15 metros, from Feb 2024 to Nov 4 2026
+(47 image renditions; 42 metropolitan boundary versions).
+
+**History repaired (2026-11-04):** Austin/Atlanta now use verified archive
+captures and actual replay timestamps. Austin's July 2025 and January 2026 dates
+are corroborated operator-announcement additions identified through AV Map.
+See [the repair report](report_history_repair.md) and
+[external comparison](report_external_comparison.md). Other metros retain the
+prior reconstruction and still need a separate archive-provenance audit.
 
 **Findings:** see [report.md](report.md). The total area grew from 218 to 1,891 sq mi,
 10 new metros launched in 2026, and service areas almost never shrink.
@@ -46,8 +54,11 @@ on("2025-06-30").to_crs(6933).area.sum() / 2.59e6  # total sq mi on a date
 The archive is sampled irregularly (125 snapshots of the main page). A change
 happened somewhere between `change_window_start` (the last snapshot showing the old
 map) and `valid_from` (the first snapshot showing the new one). `valid_to` is
-open (empty) for maps still on the page. The newest versions (2026-10-27) come
-from the live pages fetched on that day.
+open (empty) for maps still on the page. The current full-page map set was fetched on 2026-10-27; Austin/Atlanta were
+rechecked on 2026-11-04. `date_basis` and `date_source_url` distinguish the two
+operator-announcement date additions from first verified map observations.
+`change_window_start` now uses the last old observation of the same city, not an
+unrelated metro snapshot date.
 
 ## Method
 
@@ -70,7 +81,7 @@ from the live pages fetched on that day.
 
 ## Accuracy and caveats
 
-- All 42 images were checked by eye in `qa/`. Highway shields and OSM roads line
+- The original 42 images and five recovered renditions were checked by eye in `qa/`. Highway shields and OSM roads line
   up everywhere. Expect boundary errors of roughly 50–300 m, larger on older,
   coarser maps (2024 SF/Austin).
 - Checks against reported figures: Phoenix 300 sq mi in Jul 2024 (reported
@@ -83,8 +94,10 @@ from the live pages fetched on that day.
   A shield sitting exactly on the boundary can still leave a small notch.
 - `clipped_by_frame` marks maps whose blue area touches the circular map edge,
   where the real area may extend past the image.
-- Austin: no archived map between 2025-03-03 (removed from the main page) and
-  2025-06-12 (first capture of the Uber page).
+- Austin: the first recovered Uber-page map is 2025-07-29. The July 17, 2025
+  and January 13, 2026 expansion dates are separately supported by operator
+  announcements. Atlanta first appears in verified captures on 2025-07-29; its
+  June 24 launch is known, but that exact launch polygon has not been imported.
 - "Gradually adding riders" areas are included as drawn. Use the `note` column to
   filter them.
 
@@ -160,8 +173,9 @@ from re-downloaded images without redoing the slow fit. Keep a local copy of
   under Denver. If a snapshot suddenly shows fewer cities, check the parser first.
 - **Image hosts.** 2024 maps are on `storage.googleapis.com/support-kms-prod/...`,
   later ones on `lh3.googleusercontent.com/...`. The `=w895` suffix is stripped and
-  `=s0` requested to get full resolution (2400 px). The live URL is tried first,
-  archive.org is the fallback. Downloaded images are deduplicated by SHA-1, so the
+  `=s0` requested to get full resolution (2400 px). Historical images are fetched from archive.org. A later image replay is accepted
+  only if its bytes match an already verified earlier capture of that image URL.
+  Live captures fetch live images. Neither path reuses the old URL-only cache. Downloaded images are deduplicated by SHA-1, so the
   same map reached through a new URL isn't processed twice.
 - **City labels.** "San Francisco" + "Silicon Valley" (Mar–Nov 2025) became
   "San Francisco Bay Area". Austin left the main page in Mar 2025 and lives on the
@@ -202,3 +216,28 @@ from re-downloaded images without redoing the slow fit. Keep a local copy of
   the CPUC/CA DMV ODD maps, to tighten change dates or go back before Feb 2024.
 - Automate steps 2-5 in CI for new maps. Needs the OSM extracts (several GB) and a
   human look at the QA image, so for now the daily check only saves and reports.
+
+### Repair inputs and archive provenance
+
+- `data/snapshot_sources.csv` records the verified Austin/Atlanta page and image
+  replay URLs, actual capture times, retrieval times and SHA-256 hashes.
+- `data/history_sources.csv` holds the two curated operator-announcement dates;
+  step 3 uses these without inventing archive captures on those dates.
+- `data/image_equivalences.csv` identifies two lower-resolution renditions of
+  unchanged maps, preventing resampling from creating spurious expansions.
+- Old HTML without a version-2 provenance sidecar is not trusted as archived
+  content. On recovery it is retained locally in `raw/snapshots_legacy/`.
+
+If CDX is unavailable, replay the existing index for the Uber page with:
+
+```bash
+python 01_fetch_snapshots.py --page 16011725 --existing-index
+```
+
+Other page rows are retained. Replay redirects use the returned capture date,
+not the requested timestamp. A missing verified image aborts before replacing
+the index. To run the provenance regression checks from the repository root:
+
+```bash
+python -m unittest discover -s areas/waymo/tests -p "test_*.py" -v
+```

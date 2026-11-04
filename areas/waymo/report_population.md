@@ -9,12 +9,12 @@ method and caveats are at the end.*
 | | |
 |---|---|
 | Residents inside a service area, Feb 2024 | **1.65 million** (Phoenix, SF) |
-| Residents inside a service area, Oct 27 2026 | **11.3 million** (11.0–11.6 M with ±150 m boundary error), 5.2 M housing units |
-| Growth | ×6.9 in 2.7 years; **×2.1 in the last 12 months** (5.45 M → 11.3 M) |
-| At year end | 2024: 3.6 M · 2025: 6.2 M · 2026 (to date): 11.3 M |
+| Residents inside a service area, Nov 4 2026 | **11.3 million** (11.0–11.6 M with ±150 m boundary error), 5.2 M housing units |
+| Growth | ×6.9 in 2.7 years; **×2.2 in the last 12 months** (5.05 M → 11.3 M) |
+| At year end | 2024: 3.6 M · 2025: 5.8 M · 2026 (to date): 11.3 M |
 | Share living in Phoenix + SF + LA | **58%** (vs. 48% of the area) |
 | Average density | 6,200 residents per sq mi of land (7,700 at the end of 2024) |
-| Metros where the launch area was denser than later expansions | **10 of 10** |
+| Metros where the launch area was denser than later expansions | **11 of 11** |
 
 Residents grew a bit slower than area (×6.9 vs ×8.7), because the newer land is
 less dense. The ten 2026 launches cover 715 sq mi but only 3.6 M residents.
@@ -60,8 +60,8 @@ of land:
 ![Average density over time](figures/report/density_over_time.svg)
 
 The early peak (9,300) is LA's dense launch (Apr 2024). The large drops come from
-low-density additions: Phoenix's expansion (Jul 2024) and Austin's expansion plus Atlanta's
-launch (Jun 2025). Since then, 2026's mix of new metros and suburban expansions has
+low-density additions: Phoenix's expansion (Jul 2024), Austin's July 2025 expansion
+and Atlanta's first recovered map (Jul 2025). Since then, 2026's mix of new metros and suburban expansions has
 lowered the average slowly.
 
 ## How much of each metro is covered?
@@ -119,6 +119,10 @@ Atlanta, Las Vegas and Dallas 7–18× as often. The patterns that stand out:
    in `pop_lo` / `pop_hi`, about ±3% overall and up to ±10% for small areas (Las Vegas).
 
 ## Caveats
+
+- Austin/Atlanta history was repaired and population recomputed on 2026-11-04; see
+  [the repair report](report_history_repair.md). Other metros still need a separate
+  archive-provenance audit.
 
 - **2020 population on 2024–2026 polygons.** Growth since 2020 isn't included, so Sun Belt
   metros (Austin, Phoenix, Nashville, Orlando) are probably a few percent low.

@@ -1,14 +1,14 @@
 {
  "first_date": "2024-02-12",
- "last_date": "2026-10-27",
+ "last_date": "2026-11-04",
  "total_first": 218,
  "total_now": 1891,
  "growth_factor": 8.7,
- "annual_growth_factor": 2.22,
- "doubling_months": 10.4,
+ "annual_growth_factor": 2.21,
+ "doubling_months": 10.5,
  "total_end_of_year": {
   "2024": 468,
-  "2025": 952,
+  "2025": 838,
   "2026": 1890
  },
  "launches_per_year": {
@@ -19,14 +19,14 @@
  "expansions_per_year": {
   "2024": 3,
   "2025": 8,
-  "2026": 13
+  "2026": 16
  },
- "n_expansions": 24,
- "added_by_expansions": 1027,
- "removed_by_expansions": 13.5,
+ "n_expansions": 27,
+ "added_by_expansions": 1081,
+ "removed_by_expansions": 13.9,
  "max_removed_single": {
   "metro": "Phoenix",
-  "removed": 3.6884545213983664
+  "removed": 3.6884545213836804
  },
  "top_expansions": [
   {
@@ -42,13 +42,6 @@
    "before": 174.0,
    "after": 299.6,
    "added": 125.7
-  },
-  {
-   "metro": "Austin",
-   "date": "2025-06-12",
-   "before": 35.5,
-   "after": 150.1,
-   "added": 114.7
   },
   {
    "metro": "Los Angeles",
@@ -79,6 +72,13 @@
    "added": 56.8
   },
   {
+   "metro": "Austin",
+   "date": "2025-07-17",
+   "before": 35.5,
+   "after": 89.4,
+   "added": 53.9
+  },
+  {
    "metro": "San Francisco",
    "date": "2025-06-17",
    "before": 81.1,
@@ -88,7 +88,7 @@
  ],
  "launch_size_median_2026": 48.7,
  "launch_sizes": {
-  "Atlanta": 111.6,
+  "Atlanta": 58.3,
   "Austin": 35.5,
   "Dallas": 47.4,
   "Denver": 58.4,
@@ -205,5 +205,5 @@
    "area_mi2": 45.4
   }
  ],
- "median_days_between_expansions": 133.5
+ "median_days_between_expansions": 142.0
 }
