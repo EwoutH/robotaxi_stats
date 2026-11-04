@@ -6,7 +6,7 @@ toc: false
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
 
 ```js
-import {slug, fmtInt, fmtMillions, fmtDate, BLUE, ageColor, activeOn, lookup, areaMap, popup, bounds} from "../components/waymo.js";
+import {slug, fmtInt, fmtMillions, fmtDate, BLUE, UNITS, ageColor, activeOn, lookup, areaMap, popup, bounds, metroPicker, segmented} from "../components/waymo.js";
 
 const areas = FileAttachment("../data/waymo_areas.geojson").json();
 const waymo = FileAttachment("../data/waymo_stats.json").json();
@@ -19,18 +19,22 @@ const color = ageColor(dates[0], dates.at(-1));
 // Metros in launch order.
 const allMetros = d3.groupSort(features, (v) => d3.min(v, (f) => f.properties.valid_from), (f) => f.properties.metro);
 const fromHash = location.hash.slice(1).split(",");
+const fmtMonth = (d) => d3.utcFormat("%b %Y")(new Date(d));
 ```
 
 <div class="eyebrow"><a href="../">Robotaxi stats</a></div>
 
 # Waymo service areas
 
-<p class="lede">Where Waymo's robotaxis can take you, from February 2024 to ${dates.at(-1)}. Traced from the maps on Waymo's help pages.</p>
+<p class="lede">Where Waymo's robotaxis can take you, ${fmtMonth(dates[0])} to ${fmtMonth(dates.at(-1))}.</p>
 
 ```js
-const chips = Inputs.checkbox(allMetros, {value: allMetros.filter((m) => fromHash.includes(slug(m)))});
-chips.classList.add("chips");
-const picked = view(chips);
+const picked = view(metroPicker(allMetros, allMetros.filter((m) => fromHash.includes(slug(m)))));
+```
+
+```js
+const unitInput = segmented({mi: "mi²", km: "km²"}, "mi");
+const unit = Generators.input(unitInput);
 ```
 
 ```js
@@ -44,16 +48,21 @@ const events = waymo.events.filter((d) => inSel(d.metro)).map((d) => ({...d, dat
 history.replaceState(null, "", picked.length ? `#${picked.map(slug).join(",")}` : location.pathname);
 ```
 
-<div class="grid grid-cols-4">
-  <div class="card"><h2>Service area</h2><span class="big">${fmtInt(d3.sum(current, (f) => f.properties.area_mi2))} sq mi</span></div>
-  <div class="card"><h2>Residents inside</h2><span class="big">${fmtMillions(d3.sum(current, (f) => f.properties.pop))}</span></div>
-  <div class="card"><h2>${picked.length ? "First launch" : "Metros"}</h2><span class="big">${picked.length ? d3.min(selFeatures, (f) => f.properties.valid_from) : allMetros.length}</span></div>
-  <div class="card"><h2>Expansions</h2><span class="big">${events.filter((d) => d.kind === "expansion").length}</span></div>
+```js
+// Areas are stored in square miles; convert for display.
+const {label: areaLabel, factor: K} = UNITS[unit];
+const fmtArea = (mi2) => `${fmtInt(mi2 * K)} ${areaLabel}`;
+```
+
+<div class="stats">
+  <div><div class="stat-label">Service area</div><div class="stat-value">${fmtArea(d3.sum(current, (f) => f.properties.area_mi2))}</div></div>
+  <div><div class="stat-label">Residents inside</div><div class="stat-value">${fmtMillions(d3.sum(current, (f) => f.properties.pop))}</div></div>
+  <div><div class="stat-label">${picked.length ? "First launch" : "Metros"}</div><div class="stat-value">${picked.length ? fmtMonth(d3.min(selFeatures, (f) => f.properties.valid_from)) : allMetros.length}</div></div>
+  <div><div class="stat-label">Expansions</div><div class="stat-value">${events.filter((d) => d.kind === "expansion").length}</div></div>
+  <div class="stats-unit">${unitInput}</div>
 </div>
 
 ## Map
-
-<p class="muted">Press play or drag the slider to watch the areas grow. Darker means served longer. Click anywhere on the map to check whether that spot is served, and since when.</p>
 
 ```js
 // Slider over snapshot dates, with a play button that steps through them.
@@ -116,13 +125,19 @@ map.getSource("dots").setData({
 });
 ```
 
+<div class="map-footer">
+
 ```js
 Plot.legend({
   color: {type: "utc", domain: [new Date(dates[0]), new Date(dates.at(-1))], interpolate: color.interpolator()},
-  label: "First on the map",
-  width: 320
+  label: "First on the map (darker = served longer)",
+  width: 300
 })
 ```
+
+<span class="hint">Click the map to check a spot.</span>
+
+</div>
 
 ## Growth
 
@@ -154,7 +169,7 @@ function growth(y, title, format) {
 ```
 
 <div class="grid grid-cols-2">
-  <div class="card">${growth("area_mi2", "Service area (sq mi)", (d) => `${fmtInt(d.area_mi2)} sq mi`)}</div>
+  <div class="card">${growth((d) => d.area_mi2 * K, `Service area (${areaLabel})`, (d) => fmtArea(d.area_mi2))}</div>
   <div class="card">${growth((d) => d.pop / 1e6, "Residents inside (millions)", (d) => `${fmtInt(d.pop)} residents`)}</div>
 </div>
 
@@ -179,7 +194,7 @@ Plot.plot({
       strokeWidth: 2,
       channels: {
         Kind: "kind",
-        "Added (sq mi)": (d) => fmtInt(d.added),
+        Added: (d) => fmtArea(d.added),
         "Residents added": (d) => (d.pop_added == null ? "–" : fmtInt(d.pop_added))
       },
       tip: {format: {x: fmtDate, y: true, r: false, fill: false, stroke: false}}
@@ -198,19 +213,19 @@ Inputs.table(
     Date: d.date,
     Metro: d.metro,
     Kind: d.kind,
-    "Added (sq mi)": d.added,
-    "Area after (sq mi)": d.after,
+    [`Added (${areaLabel})`]: d.added * K,
+    [`Area after (${areaLabel})`]: d.after * K,
     "Residents added": d.pop_added
   })),
   {
     format: {
       Date: fmtDate,
-      "Added (sq mi)": fmtInt,
-      "Area after (sq mi)": fmtInt,
+      [`Added (${areaLabel})`]: fmtInt,
+      [`Area after (${areaLabel})`]: fmtInt,
       "Residents added": (x) => (x == null ? "–" : fmtInt(x))
     }
   }
 )
 ```
 
-<p class="muted">Dates are when a new map first shows up in the Wayback Machine archive; the change itself can be days to weeks earlier. Boundaries are accurate to roughly 50–300 m, and residents count everyone living inside the drawn area. Method and caveats: <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report.md">area report</a>, <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report_population.md">population report</a>.</p>
+<p class="small muted">Traced from the maps on Waymo's help pages, as archived by the Wayback Machine. Dates are when a new map first appears there; the change itself can be days to weeks earlier. Boundaries are accurate to roughly 50–300 m; residents are from the 2020 Census. Details: <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report.md">area report</a>, <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report_population.md">population report</a>.</p>

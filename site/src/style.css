@@ -89,46 +89,135 @@ a.card:hover h2 {
   color: var(--accent);
 }
 
-/* Metro selector as pill toggles. */
-form.chips {
-  display: block;
-  width: auto;
-  max-width: none;
-}
-
-form.chips > label {
-  display: none;
-}
-
-form.chips > div {
+/* Metro picker: metros grouped by state, as pill toggles. */
+.picker {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px 22px;
+  margin: 1.5rem 0;
+  font-size: 0.85rem;
 }
 
-form.chips > div > label {
-  margin: 0;
-  padding: 6px 14px;
-  border: 1px solid var(--hairline);
-  border-radius: 999px;
-  font-size: 0.9rem;
+.picker-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.picker button {
+  font: inherit;
   cursor: pointer;
   user-select: none;
+}
+
+.picker .picker-state {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--theme-foreground-muted);
+}
+
+.picker-state:hover,
+.picker-state.on {
+  color: var(--accent);
+}
+
+.chip {
+  padding: 4px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: none;
+  color: inherit;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
-form.chips > div > label:hover {
+.chip:hover {
   border-color: var(--accent);
 }
 
-form.chips > div > label:has(input:checked) {
+.chip.on {
   background: var(--accent);
   border-color: var(--accent);
   color: white;
 }
 
-form.chips input {
-  display: none;
+.picker-clear {
+  border: none;
+  background: none;
+  color: var(--accent);
+  padding: 4px 0;
+}
+
+/* Headline numbers in one compact row. */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--theme-foreground-muted);
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.stats-unit {
+  margin-left: auto;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.segmented button {
+  border: none;
+  background: none;
+  color: var(--theme-foreground-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.segmented button.on {
+  background: var(--accent);
+  color: white;
+}
+
+.map-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 8px;
+}
+
+.hint,
+.small {
+  font-size: 0.8rem;
+}
+
+.hint {
+  color: var(--theme-foreground-muted);
 }
 
 /* Date slider with play button. */
