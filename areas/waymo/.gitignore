@@ -4,6 +4,7 @@ qa/
 figures/*.png
 data/image_polygons.gpkg
 data/image_url_cache.json
+data/image_capture_cache.json
 *.geojson
 __pycache__/
 *.log
