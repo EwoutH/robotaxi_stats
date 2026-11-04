@@ -1,5 +1,5 @@
 import * as d3 from "npm:d3";
-import * as L from "npm:leaflet";
+import maplibregl from "npm:maplibre-gl@5.24.0";
 
 export const slug = (name) => name.toLowerCase().replace(/\s+/g, "-");
 export const fmtInt = d3.format(",.0f");
@@ -33,15 +33,45 @@ export function lookup(features, point) {
     : `Was inside Waymo's <b>${metro}</b> service area from ${first} to ${d3.max(hits, (f) => f.properties.valid_to)}, but not anymore.`;
 }
 
-export function basemap(div, dark) {
-  const map = L.map(div, {scrollWheelZoom: false});
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19
-  }).addTo(map);
-  // Muted tiles so the service areas stand out; inverted in dark mode.
-  map.getPane("tilePane").style.filter = dark
-    ? "invert(1) hue-rotate(180deg) grayscale(0.6) brightness(0.8)"
-    : "grayscale(0.6) opacity(0.8)";
+const empty = {type: "FeatureCollection", features: []};
+
+// Vector base map (OpenFreeMap, no key needed) with one GeoJSON source "areas".
+// Features need a `color` property. Later features draw on top.
+export async function areaMap(container, dark) {
+  const map = new maplibregl.Map({
+    container,
+    style: `https://tiles.openfreemap.org/styles/${dark ? "dark" : "positron"}`,
+    center: [-98, 37],
+    zoom: 3,
+    cooperativeGestures: true,
+    attributionControl: {compact: true}
+  });
+  map.addControl(new maplibregl.NavigationControl({showCompass: false}), "top-right");
+  await map.once("load");
+  map.resize();
+  map.addSource("areas", {type: "geojson", data: empty});
+  map.addLayer({id: "areas-fill", type: "fill", source: "areas", paint: {"fill-color": ["get", "color"], "fill-opacity": 0.45}});
+  map.addLayer({
+    id: "areas-line",
+    type: "line",
+    source: "areas",
+    paint: {"line-color": ["get", "color"], "line-width": ["case", ["get", "active"], 1.5, 0.75]}
+  });
+  // One dot per metro when zoomed out, where the areas themselves are too small to see.
+  map.addSource("dots", {type: "geojson", data: empty});
+  map.addLayer({
+    id: "dots",
+    type: "circle",
+    source: "dots",
+    maxzoom: 7,
+    paint: {"circle-color": BLUE, "circle-radius": 6, "circle-stroke-color": "#fff", "circle-stroke-width": 1.5}
+  });
   return map;
 }
+
+export function popup(map, lngLat, html) {
+  new maplibregl.Popup({closeButton: false, maxWidth: "280px"}).setLngLat(lngLat).setHTML(html).addTo(map);
+}
+
+// [[west, south], [east, north]] of a list of GeoJSON features.
+export const bounds = (features) => d3.geoBounds({type: "FeatureCollection", features});

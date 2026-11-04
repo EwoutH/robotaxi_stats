@@ -3,8 +3,10 @@ title: Waymo service areas
 toc: false
 ---
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
+
 ```js
-import {slug, fmtInt, fmtMillions, fmtDate, BLUE, ageColor, activeOn, lookup, basemap} from "../components/waymo.js";
+import {slug, fmtInt, fmtMillions, fmtDate, BLUE, ageColor, activeOn, lookup, areaMap, popup, bounds} from "../components/waymo.js";
 
 const areas = FileAttachment("../data/waymo_areas.geojson").json();
 const waymo = FileAttachment("../data/waymo_stats.json").json();
@@ -19,16 +21,20 @@ const allMetros = d3.groupSort(features, (v) => d3.min(v, (f) => f.properties.va
 const fromHash = location.hash.slice(1).split(",");
 ```
 
+<div class="eyebrow"><a href="../">Robotaxi stats</a></div>
+
 # Waymo service areas
 
-<p class="muted">Where Waymo's robotaxis can take you, February 2024 to ${dates.at(-1)}, traced from the maps on Waymo's help pages.</p>
+<p class="lede">Where Waymo's robotaxis can take you, from February 2024 to ${dates.at(-1)}. Traced from the maps on Waymo's help pages.</p>
 
 ```js
-const picked = view(Inputs.checkbox(allMetros, {label: "Metros", value: allMetros.filter((m) => fromHash.includes(slug(m)))}));
+const chips = Inputs.checkbox(allMetros, {value: allMetros.filter((m) => fromHash.includes(slug(m)))});
+chips.classList.add("chips");
+const picked = view(chips);
 ```
 
 ```js
-// Nothing ticked = all metros. The selection is kept in the URL so it can be shared.
+// Nothing selected = all metros. The selection is kept in the URL so it can be shared.
 const metros = picked.length ? picked : allMetros;
 const inSel = (m) => metros.includes(m);
 const selFeatures = features.filter((f) => inSel(f.properties.metro));
@@ -39,55 +45,83 @@ history.replaceState(null, "", picked.length ? `#${picked.map(slug).join(",")}` 
 ```
 
 <div class="grid grid-cols-4">
-  <div class="card"><h2>Service area now</h2><span class="big">${fmtInt(d3.sum(current, (f) => f.properties.area_mi2))} sq mi</span></div>
-  <div class="card"><h2>Residents inside</h2><span class="big">${fmtMillions(d3.sum(current, (f) => f.properties.pop))}</span><p class="muted">2020 Census</p></div>
+  <div class="card"><h2>Service area</h2><span class="big">${fmtInt(d3.sum(current, (f) => f.properties.area_mi2))} sq mi</span></div>
+  <div class="card"><h2>Residents inside</h2><span class="big">${fmtMillions(d3.sum(current, (f) => f.properties.pop))}</span></div>
   <div class="card"><h2>${picked.length ? "First launch" : "Metros"}</h2><span class="big">${picked.length ? d3.min(selFeatures, (f) => f.properties.valid_from) : allMetros.length}</span></div>
   <div class="card"><h2>Expansions</h2><span class="big">${events.filter((d) => d.kind === "expansion").length}</span></div>
 </div>
 
 ## Map
 
+<p class="muted">Press play or drag the slider to watch the areas grow. Darker means served longer. Click anywhere on the map to check whether that spot is served, and since when.</p>
+
 ```js
-// Slider over snapshot dates; the number box would show an index, so hide it.
-const slider = Inputs.range([0, dates.length - 1], {step: 1, value: dates.length - 1, label: "Date"});
-slider.querySelector("input[type=number]").style.display = "none";
-const pick = view(slider);
+// Slider over snapshot dates, with a play button that steps through them.
+const slider = Inputs.range([0, dates.length - 1], {step: 1, value: dates.length - 1});
+const playButton = html`<button class="play" title="Play">▶</button>`;
+const dateLabel = html`<span class="timeline-date"></span>`;
+display(html`<div class="timeline">${playButton}${slider}${dateLabel}</div>`);
+const pick = Generators.input(slider);
+
+let timer = null;
+const setIndex = (i) => {
+  slider.value = i;
+  slider.dispatchEvent(new Event("input", {bubbles: true}));
+};
+const stop = () => {
+  clearInterval(timer);
+  timer = null;
+  playButton.textContent = "▶";
+};
+playButton.onclick = () => {
+  if (timer) return stop();
+  if (+slider.value >= dates.length - 1) setIndex(0);
+  playButton.textContent = "❚❚";
+  timer = setInterval(() => (+slider.value >= dates.length - 1 ? stop() : setIndex(+slider.value + 1)), 150);
+};
+invalidation.then(stop);
 ```
 
 ```js
 const date = dates[pick];
+dateLabel.textContent = date;
 ```
 
-<p><b>${date}</b> · ${fmtInt(d3.sum(selFeatures.filter((f) => activeOn(f, date)), (f) => f.properties.area_mi2))} sq mi</p>
-
 ```js
-Plot.legend({color: {type: "utc", domain: [new Date(dates[0]), new Date(dates.at(-1))], interpolate: color.interpolator()}, label: "Area first on the map (darker = served longer)", width: 360})
-```
-
-<p class="muted">Drag the slider to see the areas on any date. Click anywhere on the map to check whether that spot is served, and since when.</p>
-
-```js
-const mapDiv = display(html`<div style="height: 560px; border-radius: 8px;"></div>`);
-const map = basemap(mapDiv, dark);
-map.on("click", (e) => L.popup().setLatLng(e.latlng).setContent(lookup(features, [e.latlng.lng, e.latlng.lat])).openOn(map));
+const mapDiv = display(html`<div class="map"></div>`);
+const map = await areaMap(mapDiv, dark);
+map.on("click", (e) => popup(map, e.lngLat, lookup(features, [e.lngLat.lng, e.lngLat.lat])));
 invalidation.then(() => map.remove());
 ```
 
 ```js
-map.fitBounds(L.geoJSON(current).getBounds(), {padding: [20, 20], maxZoom: 11});
+map.fitBounds(bounds(current), {padding: 40, maxZoom: 11});
 ```
 
 ```js
-// Every version up to this date, newest at the bottom, so the rings show how each area grew.
+// Every version up to this date. Oldest last, so it draws on top and the rings show how each area grew.
 const shown = d3.sort(selFeatures.filter((f) => f.properties.valid_from <= date), (f) => f.properties.valid_from).reverse();
-const layer = L.geoJSON(shown, {
-  interactive: false,
-  style: (f) => {
-    const c = color(new Date(f.properties.valid_from));
-    return {color: c, weight: activeOn(f, date) ? 2 : 1, fillColor: c, fillOpacity: 0.35};
-  }
-}).addTo(map);
-invalidation.then(() => layer.remove());
+map.getSource("areas").setData({
+  type: "FeatureCollection",
+  features: shown.map((f) => ({
+    ...f,
+    properties: {...f.properties, color: color(new Date(f.properties.valid_from)), active: activeOn(f, date)}
+  }))
+});
+map.getSource("dots").setData({
+  type: "FeatureCollection",
+  features: shown
+    .filter((f) => activeOn(f, date))
+    .map((f) => ({type: "Feature", geometry: {type: "Point", coordinates: d3.geoCentroid(f)}, properties: {}}))
+});
+```
+
+```js
+Plot.legend({
+  color: {type: "utc", domain: [new Date(dates[0]), new Date(dates.at(-1))], interpolate: color.interpolator()},
+  label: "First on the map",
+  width: 320
+})
 ```
 
 ## Growth
@@ -104,7 +138,7 @@ function growth(y, title, format) {
   return Plot.plot({
     title,
     width: Math.min(width, 640),
-    height: picked.length ? 30 + 90 * picked.length : 260,
+    height: picked.length > 1 ? 30 + 110 * picked.length : 260,
     marginRight: picked.length ? 100 : 20,
     x: {domain: xDomain, label: null},
     y: {grid: true, label: null, ticks: 4},

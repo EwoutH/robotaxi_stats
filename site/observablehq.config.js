@@ -1,8 +1,10 @@
 export default {
   title: "Robotaxi stats",
   root: "src",
-  // One entry per page; group them (e.g. {name: "Safety", pages: [...]}) as more topics arrive.
+  style: "style.css",
+  // Pages are listed on the landing page. Turn the sidebar on once there are a few.
   pages: [{name: "Waymo service areas", path: "/areas/waymo"}],
+  sidebar: false,
   pager: false,
   interpreters: {".py": ["python"]},
   footer:

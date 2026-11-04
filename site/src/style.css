@@ -1,0 +1,200 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import url("observablehq:default.css");
+@import url("observablehq:theme-air.css");
+@import url("observablehq:theme-near-midnight.css") (prefers-color-scheme: dark);
+
+:root {
+  --sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: var(--sans-serif);
+  --accent: #2a78d6;
+  --hairline: color-mix(in srgb, var(--theme-foreground) 10%, transparent);
+}
+
+body {
+  font-family: var(--sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+#observablehq-main {
+  max-width: 1100px;
+}
+
+h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  max-width: none;
+}
+
+h2 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-top: 3rem;
+}
+
+p,
+.muted {
+  max-width: 680px;
+}
+
+.eyebrow {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--theme-foreground-muted);
+}
+
+.eyebrow a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lede {
+  font-size: 1.15rem;
+  color: var(--theme-foreground-muted);
+  margin-top: 0.5rem;
+}
+
+/* Cards: no boxes, just whitespace and a hairline. */
+.card {
+  background: none;
+  border: none;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  padding: 1rem 0 0;
+}
+
+.card h2 {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--theme-foreground-muted);
+}
+
+.big {
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+a.card h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--theme-foreground);
+}
+
+a.card:hover h2 {
+  color: var(--accent);
+}
+
+/* Metro selector as pill toggles. */
+form.chips {
+  display: block;
+  width: auto;
+  max-width: none;
+}
+
+form.chips > label {
+  display: none;
+}
+
+form.chips > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+form.chips > div > label {
+  margin: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+form.chips > div > label:hover {
+  border-color: var(--accent);
+}
+
+form.chips > div > label:has(input:checked) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+form.chips input {
+  display: none;
+}
+
+/* Date slider with play button. */
+.timeline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.timeline form {
+  flex: 1;
+  max-width: 520px;
+}
+
+.timeline form > label {
+  display: none;
+}
+
+.timeline input[type="range"] {
+  accent-color: var(--accent);
+  width: 100%;
+}
+
+.timeline input[type="number"] {
+  display: none;
+}
+
+.play {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.timeline-date {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 7ch;
+}
+
+/* Map */
+.map {
+  height: 600px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.maplibregl-popup-content {
+  font: 14px/1.4 var(--sans-serif);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .maplibregl-popup-content {
+    background: #1f2023;
+    color: #e8e8e8;
+  }
+  .maplibregl-popup-tip {
+    border-top-color: #1f2023 !important;
+    border-bottom-color: #1f2023 !important;
+  }
+}
+
