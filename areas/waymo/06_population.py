@@ -178,7 +178,7 @@ def compute(mv):
             removed = None if prev is None else prev.difference(geom)
             a = summarise(cover_shares(added, B), B)
             events.append(dict(metro=metro, date=r.valid_from,
-                               kind="launch" if prev is None else "expansion",
+                               kind=R.event_kind(metro, r.valid_from, prev is None),
                                area_added_mi2=shapely.area(added) / 1e6 / KM2_PER_MI2,
                                pop_added=a["pop"], land_added_mi2=a["land_mi2"],
                                density_added_mi2=a["density_mi2"],
@@ -250,7 +250,7 @@ def fig_people_vs_area(cur):
 def launch_vs_later(E):
     """Density at launch vs. all land added by later expansions combined."""
     ex = E[E.kind == "expansion"].groupby("metro")[["pop_added", "land_added_mi2"]].sum()
-    la = E[E.kind == "launch"].set_index("metro")
+    la = E[E.kind != "expansion"].set_index("metro")
     out = pd.DataFrame({"launch": la.density_added_mi2,
                         "later": ex.pop_added / ex.land_added_mi2,
                         "later_pop": ex.pop_added})
@@ -274,11 +274,11 @@ def fig_density_added(E):
     ax.minorticks_off()
     ax.grid(axis="y", visible=False)
     ax.set_xlabel("residents per sq mi of land")
-    ax.legend(handles=[Line2D([], [], marker="o", ls="", mfc=R.SURFACE, mec=R.INK2, mew=1.5, label="launch area"),
+    ax.legend(handles=[Line2D([], [], marker="o", ls="", mfc=R.SURFACE, mec=R.INK2, mew=1.5, label="earliest data / launch area"),
                        Line2D([], [], marker="o", ls="", color=R.INK2, label="all later expansions combined")],
               loc="lower right", frameon=False, fontsize=8)
-    ax.set_title("Launch areas are denser than what gets added later", loc="left", fontsize=11)
-    fig.text(0.01, 0.01, "* first map in the archive (Feb 2024), not the actual launch",
+    ax.set_title("Initial areas are denser than what gets added later", loc="left", fontsize=11)
+    fig.text(0.01, 0.01, "* Earliest data (Dec 16, 2022), not the actual launch",
              fontsize=7, color=R.INK2)
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     fig.savefig(OUT / "density_added.svg")

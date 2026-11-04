@@ -6,7 +6,7 @@ An approximately 98% median best-match IoU is agreement between digitizations, n
 
 ## Pinned public inputs
 
-- Our GeoPackage: 48 city/map versions, 45 metropolitan versions, 15 metros. SHA-256 is in the [manifest](data/external_comparison/manifest.json).
+- Our GeoPackage: 49 city/map versions, 46 metropolitan versions, 15 metros. SHA-256 is in the [manifest](data/external_comparison/manifest.json).
 - [Robotaxi Tracker](https://github.com/Robotaxi-Tracker/robotaxi-service-areas/tree/3857624ca629688cbfbedde1b75d2ece7c2af0f6): revision `3857624`, committed 2026-09-10.
 - [AV Map](https://github.com/path-avmap/av-map-data/tree/3c94c4f924c69f425a54debe0c594a286bf16d8c): revision `3c94c4f`, committed 2026-05-15.
 

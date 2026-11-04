@@ -3,7 +3,7 @@
 Investigated November 4, 2026. **February 12, 2024 is the start of our current
 Help-page capture series, not the earliest surviving service-area evidence.**
 Seven original operator map assets have been downloaded and visually inspected.
-Together they support six metro/date states, five now incorporated into the dataset, reaching back to December
+Together they support six metro/date states, all six now incorporated into the dataset, reaching back to December
 2022. They are catalogued in [early_history_sources.csv](data/early_history_sources.csv)
 with source URLs, publication dates, content hashes, dimensions and scope.
 Raw HTML, images and extracted animation frames remain in `raw/early_history/`.
@@ -13,7 +13,7 @@ Raw HTML, images and extracted animation frames remain in `raw/early_history/`.
 | Date/state | Metro | Surviving evidence | Treatment |
 |---|---|---|---|
 | December 16, 2022 | San Francisco | [Waymo announcement](https://waymo.com/blog/2022/12/wheels-up-for-waymo-as-we-expand/), 1920 x 1080 map | Dark blue is public; light blue is employees and guests. Public fill imported separately. Public access still involved invitation/onboarding. |
-| December 2022 | Phoenix | Same announcement has a downtown map; the [May 2023 animation](https://waymo.com/blog/2023/05/waymo-one-doubles-service-area-in/) retrospectively shows both downtown and East Valley | Full metro map exists, with two disconnected components. Animation labels only the month; do not invent an exact December date for that union. |
+| December 2022 | Phoenix | Same announcement has a downtown map; the [May 2023 animation](https://waymo.com/blog/2023/05/waymo-one-doubles-service-area-in/) retrospectively shows both downtown and East Valley | Full metro map exists, with two disconnected components. Animation labels the month; the full union is assigned to December 16 as the comparison baseline, anchored to the dated announcement. |
 | February 17, 2023 | San Francisco | [Dated Help announcement](https://support.google.com/waymo/answer/13367795?hl=en), 4216 x 4216 map | Explicit expansion effective that afternoon; Mission, Potrero Hill and Dogpatch added. |
 | May 4, 2023 | Phoenix | [Dated Help announcement](https://support.google.com/waymo/answer/13559801?hl=en), 8000 x 4281 map; [blog announcement and animation](https://waymo.com/blog/2023/05/waymo-one-doubles-service-area-in/) | Connected downtown and East Valley, adding Scottsdale. Blog states 180 sq mi; use traced area separately from nominal area. |
 | July 7, 2023 | Phoenix | [Dated Help announcement](https://support.google.com/waymo/answer/13768098?hl=en), 786 x 787 map | Explicit expanded boundary, visibly extending beyond May coverage. |
@@ -30,7 +30,7 @@ Wayback captures from their publication dates**. Explicit image labels, distinct
 older boundaries, and agreement between announcements provide useful evidence;
 the five explicit announcement dates have been incorporated as `operator_announcement`,
 with original image hashes and checked shapes. They are not relabelled as archive
-observations. The month-only Phoenix reconstruction remains a candidate.
+observations. The month-labelled Phoenix reconstruction is explicitly attributed to December 16 as the project's comparison baseline.
 
 ## What this reveals about our existing history
 
@@ -92,10 +92,11 @@ be collapsed into one August polygon update without further evidence.
 | San Francisco | 2022-12-16 | 34.12 | 528,726 |
 | San Francisco | 2023-02-17 | 37.51 | 610,291 |
 | San Francisco | 2023-10-09 | 44.37 | 837,390 |
+| Phoenix | 2022-12-16 | 89.22 | 442,685 |
 | Phoenix | 2023-05-04 | 174.02 | 809,019 |
 | Phoenix | 2023-07-07 | 215.04 | 963,725 |
 
-Five explicit dates add three metropolitan shapes; two are checked equivalents
+Six map states at five dates add four metropolitan shapes; two are checked equivalents
 of existing higher-resolution maps. The May Phoenix pairing has 99.35% IoU.
 No AV Map geometry was imported. Nominal operator areas (180 and 225 sq mi) are
 kept distinct from the areas traced from the displayed maps.
@@ -105,7 +106,7 @@ December SF's automatic alignment failed visual QA. Its corrected alignment uses
 the existing north-up scale/translation model. Median image residual is 0.26 px;
 road-match quality is 0.611. The correction is in `data/manual_georef.csv`.
 The public-only mask excludes light-blue employee/guest coverage and legend dots
-outside the circular map. All five overlays were inspected against OSM roads.
+outside the circular map. All six overlays were inspected against OSM roads.
 
 The February 2023 SF announcement was also recovered from an actual June 29,
 2023 Wayback capture. Other replay requests returned later captures or failed;
@@ -113,17 +114,21 @@ those have not been presented as contemporary evidence. Page/image replay URLs,
 Memento timestamps and hashes are in
 [the archive audit](data/early_history_archive_audit.json).
 
-The dataset now has 48 canonical city/map versions, 52 image renditions and 45
+The dataset now has 49 canonical city/map versions, 53 image renditions and 46
 metropolitan boundary versions. Current coverage remains unchanged. Corrected
 February 2024 documented coverage is 259 sq mi and about 1.80 million residents,
-versus the previous 218 sq mi and 1.65 million. Before May 4, 2023, totals are
-incomplete because Phoenix was operating but lacks an imported boundary. The
-interactive map and stacked charts flag that gap; growth statistics start from
-May 2023 rather than the incomplete SF-only segment.
+versus the previous 218 sq mi and 1.65 million. Both metros now start on the
+**December 16, 2022 comparison baseline**, totalling 123 sq mi and about 0.97
+million residents. Their events are `earliest_data`, displayed as "Earliest data",
+not launches. The full Phoenix state uses the month-labelled animation and adopts
+the day of the dated December 16 announcement, as an explicit project attribution.
+It includes both disconnected downtown and East Valley components.
 
-The December 2022 full Phoenix animation is not imported: its label supplies only
-a month, while the dated December 16 map covers downtown alone. Earlier AV Map
-2017/2020 geometry and conflicting date assignments also remain unimported.
+The Phoenix frame is registered against the checked May 2023 map using 242
+SIFT/RANSAC inliers (median residual 0.13 px). The cropped-frame road-match score
+is 0.7543; the circular mask excludes the Waymo logo. Original GIF hash, frame 84,
+crop box and prepared-image hash make this extraction reproducible.
+Earlier AV Map 2017/2020 geometry and conflicting date assignments remain unimported.
 
 ## Reproduce
 
@@ -140,7 +145,7 @@ The source-image restoration checks both original and prepared hashes before
 writing. Run `python -m unittest discover -s areas/waymo/tests -v` from the repo
 root for archive-provenance and early-dataset regressions.
 
-Validation: all ten regression tests and dataset integration checks pass. All 45
+Validation: all twelve regression tests and dataset integration checks pass. All 46
 metro geometries are valid, population joins are complete, current shapes are
 unchanged, and all histories outside SF/Phoenix are unchanged. The full site build
 passes with freshly generated data-loader caches.

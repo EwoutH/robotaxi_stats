@@ -1,2 +1,3 @@
 image_file,min_blue_red,clip_circle,reason
 c9100474f537435f.png,175,1,December 2022 SF legend: retain dark-blue public area; exclude light-blue employees and guests and legend dots outside the map circle.
+f9656878e24a380e.png,90,1,December 2022 full Phoenix map: clip outside circle to exclude Waymo logo.

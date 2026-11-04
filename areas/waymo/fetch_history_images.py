@@ -26,7 +26,11 @@ def main():
             response.raise_for_status()
             if hashlib.sha256(response.content).hexdigest() != row["original_sha256"]:
                 raise ValueError(f"Source image changed: {row['image_url']}")
-            image = Image.open(io.BytesIO(response.content)).convert("RGBA")
+            image = Image.open(io.BytesIO(response.content))
+            image.seek(int(row.get("frame_index") or 0))
+            image = image.convert("RGBA")
+            if row.get("crop_box"):
+                image = image.crop(tuple(map(int, row["crop_box"].split(","))))
             image.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
             prepared = io.BytesIO()
             image.save(prepared, format="PNG")

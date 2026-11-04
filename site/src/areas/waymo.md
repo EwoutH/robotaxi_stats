@@ -89,9 +89,6 @@ dateLabel.textContent = date;
 ```js
 // Stats for the selected metros on the slider date.
 const live = selFeatures.filter((f) => activeOn(f, date));
-if (date < "2023-05-04" && inSel("Phoenix")) {
-  display(html`<p class="small muted">Early coverage is incomplete: Phoenix was already operating, but its boundary has not yet been reconstructed for this date. Totals include documented areas only.</p>`);
-}
 ```
 
 <div class="stats">
@@ -193,7 +190,7 @@ function growth(y, title, format) {
 
 ```js
 Plot.plot({
-  title: "Launches (filled) and expansions (open), sized by area added",
+  title: "Earliest data (gray), launches (blue), expansions (open)",
   width,
   height: 40 + metros.length * 28,
   marginLeft: 100,
@@ -205,11 +202,11 @@ Plot.plot({
       x: "date",
       y: "metro",
       r: "added",
-      fill: (d) => (d.kind === "launch" ? BLUE : "none"),
-      stroke: BLUE,
+      fill: (d) => (d.kind === "earliest_data" ? "#6b7280" : d.kind === "launch" ? BLUE : "none"),
+      stroke: (d) => (d.kind === "earliest_data" ? "#6b7280" : BLUE),
       strokeWidth: 2,
       channels: {
-        Kind: "kind",
+        Kind: "kind_label",
         Added: (d) => fmtArea(d.added),
         "Residents added": (d) => (d.pop_added == null ? "–" : fmtInt(d.pop_added))
       },
@@ -221,14 +218,14 @@ Plot.plot({
 
 </div>
 
-## Launches and expansions
+## Earliest data, launches and expansions
 
 ```js
 Inputs.table(
   d3.sort(events, (d) => d.date).reverse().map((d) => ({
     Date: d.date,
     Metro: d.metro,
-    Kind: d.kind,
+    Kind: d.kind_label,
     [`Added (${areaLabel})`]: d.added * K,
     [`Area after (${areaLabel})`]: d.after * K,
     "Residents added": d.pop_added

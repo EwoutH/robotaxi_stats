@@ -24,7 +24,8 @@ Nashville,2026-10-27,expansion,29.29,0.01,49.95,79.23
 Orlando,2026-02-28,launch,57.99,0.0,0.0,57.99
 Orlando,2026-09-07,expansion,8.49,0.08,57.99,66.4
 Orlando,2026-10-27,expansion,52.16,0.2,66.4,118.36
-Phoenix,2023-05-04,launch,174.02,0.0,0.0,174.02
+Phoenix,2022-12-16,earliest_data,89.22,0.0,0.0,89.22
+Phoenix,2023-05-04,expansion,85.84,1.04,89.22,174.02
 Phoenix,2023-07-07,expansion,42.15,1.13,174.02,215.04
 Phoenix,2024-07-12,expansion,85.17,0.66,215.04,299.55
 Phoenix,2026-09-07,expansion,56.77,3.69,299.55,352.63
@@ -32,7 +33,7 @@ San Antonio,2026-02-28,launch,53.09,0.0,0.0,53.09
 San Antonio,2026-10-14,expansion,6.33,0.57,53.09,58.84
 San Diego,2026-09-07,launch,46.15,0.0,0.0,46.15
 San Diego,2026-10-27,expansion,37.22,0.07,46.15,83.31
-San Francisco,2022-12-16,launch,34.12,0.0,0.0,34.12
+San Francisco,2022-12-16,earliest_data,34.12,0.0,0.0,34.12
 San Francisco,2023-02-17,expansion,3.62,0.23,34.12,37.51
 San Francisco,2023-10-09,expansion,6.94,0.08,37.51,44.37
 San Francisco,2024-08-08,expansion,9.69,0.01,44.37,54.04

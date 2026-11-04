@@ -89,7 +89,7 @@ Current coverage remains approximately **1,891 sq mi and 11.33 million residents
 Historical totals change: year-end 2025 coverage is now **838 sq mi**, versus
 952 before repair; residents are about **5.8 million**, versus 6.2 million before.
 This repair added three metropolitan boundary versions: 42 instead of 39.
-The subsequent [early-history extension](report_early_history.md) brings the count to 45.
+The subsequent [early-history extension](report_early_history.md) brings the count to 46.
 
 All derived area/population tables and history-dependent figures were regenerated.
 The unchanged SF/LA version maps and current-only graphics retain their previous

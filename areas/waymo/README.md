@@ -9,8 +9,8 @@ by the Wayback Machine:
 
 Waymo publishes these areas as styled PNG maps with no coordinates.
 This folder rebuilds them as vector data:
-48 canonical map versions across 15 metros, from Dec 16 2022 to Nov 4 2026
-(52 image renditions; 45 metropolitan boundary versions).
+49 canonical map versions across 15 metros, from Dec 16 2022 to Nov 4 2026
+(53 image renditions; 46 metropolitan boundary versions).
 
 **History repaired (2026-11-04):** Austin/Atlanta now use verified archive
 captures and actual replay timestamps. Austin's July 2025 and January 2026 dates
@@ -19,16 +19,18 @@ See [the repair report](report_history_repair.md) and
 [external comparison](report_external_comparison.md). Other metros retain the
 prior reconstruction and still need a separate archive-provenance audit.
 
-**Earlier history added (2026-11-04):** five dated SF/Phoenix announcement maps
+**Earlier history added (2026-11-04):** six SF/Phoenix announcement maps
 extend the series to December 2022. Stale early-2024 Phoenix maps are excluded
 from operational history while retained in the raw index. See
-[the early-history report](report_early_history.md). Before May 2023, coverage is
-incomplete because Phoenix was already operating but is not yet reconstructed.
+[the early-history report](report_early_history.md). Both metros share the
+December 16, 2022 comparison baseline, labelled "Earliest data", not "Launch".
+Phoenix combines downtown and East Valley; the full map's month-only label is
+explicitly attributed to the dated December 16 announcement.
 
-**Findings:** see [report.md](report.md). Comparable total area grew from 212 to 1,891 sq mi,
+**Findings:** see [report.md](report.md). Comparable total area grew from 123 to 1,891 sq mi,
 10 new metros launched in 2026, and service areas almost never shrink.
 [report_population.md](report_population.md) adds residents (2020 Census): 11.3 million
-people now live inside a service area, up from 1.42 million in May 2023.
+people now live inside a service area, up from 0.97 million in December 2022.
 
 ## Outputs
 
@@ -88,7 +90,7 @@ unrelated metro snapshot date.
 
 ## Accuracy and caveats
 
-- The original 42 images and ten recovered renditions were checked by eye in `qa/`. Highway shields and OSM roads line
+- The original 42 images and eleven recovered renditions were checked by eye in `qa/`. Highway shields and OSM roads line
   up everywhere. Expect boundary errors of roughly 50–300 m, larger on older,
   coarser maps (2024 SF/Austin).
 - Checks against reported figures: Phoenix 300 sq mi in Jul 2024 (reported
@@ -251,7 +253,7 @@ python -m unittest discover -s areas/waymo/tests -p "test_*.py" -v
 
 ### Restoring early announcement maps
 
-Run `python fetch_history_images.py` before step 2 to restore the five checked
+Run `python fetch_history_images.py` before step 2 to restore the six checked
 announcement renditions from `data/history_image_sources.csv`. Both original and
 prepared hashes must match. `data/image_mask_settings.csv` selects the public-only
 December 2022 SF fill; `data/manual_georef.csv` fixes its checked alignment.

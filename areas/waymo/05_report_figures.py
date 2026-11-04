@@ -48,13 +48,21 @@ def load():
     return mv.sort_values(["metro", "valid_from"]), v, ts
 
 
+def event_kind(metro, date, first):
+    if not first:
+        return "expansion"
+    if metro in ("Phoenix", "San Francisco") and pd.Timestamp(date) == pd.Timestamp("2022-12-16"):
+        return "earliest_data"
+    return "launch"
+
+
 def expansion_events(mv):
     rows = []
     for m, g in mv.groupby("metro"):
         prev = None
         for _, r in g.iterrows():
             if prev is None:
-                rows.append(dict(metro=m, date=r.valid_from, kind="launch", added=r.area_mi2,
+                rows.append(dict(metro=m, date=r.valid_from, kind=event_kind(m, r.valid_from, True), added=r.area_mi2,
                                  removed=0.0, before=0.0, after=r.area_mi2))
             else:
                 rows.append(dict(metro=m, date=r.valid_from, kind="expansion",
@@ -141,7 +149,7 @@ def fig_total(W, ylabel="sq mi", total_fmt="{:,.0f} sq mi total", fmt="{:,.0f}",
 
 
 def fig_timeline(E, end):
-    order = E[E.kind == "launch"].sort_values("date", ascending=False).metro.tolist()
+    order = E[E.kind != "expansion"].sort_values("date", ascending=False).metro.tolist()
     y = {m: i for i, m in enumerate(order)}
     fig, ax = plt.subplots(figsize=(8, 5.2))
     for m in order:
@@ -149,6 +157,9 @@ def fig_timeline(E, end):
         ax.plot([e.date.min(), end], [y[m]] * 2, color=GRID, lw=2, solid_capstyle="round", zorder=1)
     s = lambda a: 12 + a * 2.2  # marker area ~ sq mi
     la = E[E.kind == "launch"]; ex = E[E.kind == "expansion"]
+    earliest = E[E.kind == "earliest_data"]
+    ax.scatter(earliest.date, earliest.metro.map(y), s=s(earliest.added), color=INK2,
+               edgecolor=SURFACE, linewidth=1.5, marker="s", zorder=3)
     ax.scatter(la.date, la.metro.map(y), s=s(la.added), color=ORANGE, edgecolor=SURFACE,
                linewidth=1.5, zorder=3)
     ax.scatter(ex.date, ex.metro.map(y), s=s(ex.added), color=BLUE, edgecolor=SURFACE,
@@ -162,19 +173,20 @@ def fig_timeline(E, end):
     ax.grid(axis="y", visible=False)
     ax.set_xlim(E.date.min().replace(month=1, day=1), end + pd.Timedelta(days=10))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
-    leg = [Line2D([], [], marker="o", ls="", color=ORANGE, ms=8, label="first map (launch on page)"),
+    leg = [Line2D([], [], marker="s", ls="", color=INK2, ms=8, label="Earliest data"),
+           Line2D([], [], marker="o", ls="", color=ORANGE, ms=8, label="Launch"),
            Line2D([], [], marker="o", ls="", color=BLUE, ms=8, label="expansion")]
     leg += [Line2D([], [], marker="o", ls="", color=INK2, ms=np.sqrt(s(a)), label=f"{a} sq mi added")
             for a in (25, 100)]
     ax.legend(handles=leg, loc="lower left", frameon=False, fontsize=8)
-    ax.set_title("Launches and expansions (right: current sq mi)", loc="left", fontsize=11)
+    ax.set_title("Earliest data, launches and expansions (right: current sq mi)", loc="left", fontsize=11)
     fig.tight_layout()
     fig.savefig(OUT / "timeline.svg")
     plt.close(fig)
 
 
 def fig_launch_vs_now(E):
-    la = E[E.kind == "launch"].set_index("metro")
+    la = E[E.kind != "expansion"].set_index("metro")
     now = E.groupby("metro").after.last()
     d = la.assign(now=now).sort_values("date")
     fig, ax = plt.subplots(figsize=(8, 4.6))
@@ -182,7 +194,7 @@ def fig_launch_vs_now(E):
     for yi, (_, r) in zip(yy, d.iterrows()):
         ax.plot([r.added, r.now], [yi, yi], color=GRID, lw=3, zorder=1, solid_capstyle="round")
     ax.scatter(d.added, yy, color=ORANGE, s=50, zorder=3, edgecolor=SURFACE, linewidth=1.5,
-               label="at launch")
+               label="earliest data / launch")
     ax.scatter(d.now, yy, color=BLUE, s=50, zorder=3, edgecolor=SURFACE, linewidth=1.5, label="now")
     for yi, (m, r) in zip(yy, d.iterrows()):
         if r.now / r.added >= 1.5:
@@ -194,7 +206,7 @@ def fig_launch_vs_now(E):
     ax.set_xlabel("sq mi")
     ax.set_xlim(0, d.now.max() * 1.12)
     ax.legend(loc="lower right", frameon=False)
-    ax.set_title("Service area at launch vs now (metros in order of launch)", loc="left", fontsize=11)
+    ax.set_title("Service area at earliest data / launch vs now", loc="left", fontsize=11)
     fig.tight_layout()
     fig.savefig(OUT / "launch_vs_now.svg")
     plt.close(fig)
@@ -361,7 +373,7 @@ def stats(mv, v, ts, E, W):
                tot[tot.index.year == y].index[-1] >= complete_from else None
                for y in sorted(set(tot.index.year))}
     ex = E[E.kind == "expansion"]
-    la = E[E.kind == "launch"]
+    la = E[E.kind != "expansion"]
     cur = mv[mv.valid_to.isna()].copy()
     cur_l = cur.to_crs(6933)
     cur["compactness"] = (4 * np.pi * cur_l.area / cur_l.length ** 2).values
@@ -376,7 +388,8 @@ def stats(mv, v, ts, E, W):
         "annual_growth_factor": round(growth, 2),
         "doubling_months": round(12 * np.log(2) / np.log(growth), 1),
         "total_end_of_year": by_year,
-        "launches_per_year": la.groupby(la.date.dt.year).size().to_dict(),
+        "launches_per_year": E[E.kind == "launch"].groupby(E.date.dt.year).size().to_dict(),
+        "earliest_data_per_year": E[E.kind == "earliest_data"].groupby(E.date.dt.year).size().to_dict(),
         "expansions_per_year": ex.groupby(ex.date.dt.year).size().to_dict(),
         "n_expansions": len(ex),
         "added_by_expansions": round(ex.added.sum()), "removed_by_expansions": round(ex.removed.sum(), 1),

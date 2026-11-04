@@ -29,11 +29,19 @@ class EarlyHistoryTests(unittest.TestCase):
 
     def test_phoenix_does_not_revert_to_stale_2024_map(self):
         rows = self.versions[self.versions.metro == "Phoenix"].sort_values("valid_from")
-        self.assertEqual(rows.head(3).valid_from.tolist(), ["2023-05-04", "2023-07-07", "2024-07-12"])
-        self.assertGreater(rows.iloc[1].area_mi2, rows.iloc[0].area_mi2 + 35)
+        self.assertEqual(rows.head(4).valid_from.tolist(), ["2022-12-16", "2023-05-04", "2023-07-07", "2024-07-12"])
+        self.assertGreater(rows.iloc[2].area_mi2, rows.iloc[1].area_mi2 + 35)
         raw = pd.read_csv(ROOT / "data" / "snapshot_images.csv")
         stale = raw[(raw.city == "Phoenix") & (raw.image_file == "c4ae70c4e9335b83.png")]
         self.assertEqual(len(stale), 4, "Raw stale-page evidence must remain available")
+
+    def test_december_phoenix_includes_both_disconnected_areas(self):
+        first = self.versions[self.versions.metro == "Phoenix"].sort_values("valid_from").iloc[0]
+        self.assertEqual(first.valid_from, "2022-12-16")
+        self.assertTrue(first.geometry.covers(Point(-112.075, 33.45)))
+        self.assertTrue(first.geometry.covers(Point(-111.85, 33.29)))
+        self.assertFalse(first.geometry.covers(Point(-111.94, 33.43)))
+        self.assertEqual(len(first.geometry.geoms), 2)
 
     def test_versions_remain_valid_and_non_overlapping(self):
         self.assertTrue(self.versions.geometry.is_valid.all())
@@ -41,6 +49,13 @@ class EarlyHistoryTests(unittest.TestCase):
             rows = rows.sort_values("valid_from")
             self.assertFalse(rows.valid_from.duplicated().any())
             self.assertEqual(rows.valid_to.iloc[:-1].tolist(), rows.valid_from.iloc[1:].tolist())
+
+    def test_baseline_events_are_earliest_data_not_launch(self):
+        for filename in ("expansion_events.csv", "population_events.csv"):
+            events = pd.read_csv(ROOT / "data" / filename)
+            baseline = events[events.date == "2022-12-16"]
+            self.assertEqual(set(baseline.metro), {"Phoenix", "San Francisco"})
+            self.assertTrue((baseline.kind == "earliest_data").all())
 
 
 if __name__ == "__main__":
