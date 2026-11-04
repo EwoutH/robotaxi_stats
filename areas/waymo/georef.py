@@ -33,13 +33,13 @@ def load_rgba(path):
     return cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
 
 
-def blue_mask(rgba, close_px=None):
+def blue_mask(rgba, close_px=None, min_blue_red=90):
     """Service-area mask: the saturated blue fill, with roads/labels drawn on
     top of it closed over."""
     a = rgba.astype(int)
     r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
     # blue-ish: strong blue, blue clearly above red; covers fill + lighter road lines
-    m = (b > 200) & (b - r > 90) & (b - g > 40) & (al > 128)
+    m = (b > 200) & (b - r > min_blue_red) & (b - g > 40) & (al > 128)
     m = m.astype(np.uint8)
     h = max(rgba.shape[:2])
     k = close_px or max(3, int(round(h / 180)))

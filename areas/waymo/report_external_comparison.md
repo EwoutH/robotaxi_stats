@@ -6,7 +6,7 @@ An approximately 98% median best-match IoU is agreement between digitizations, n
 
 ## Pinned public inputs
 
-- Our GeoPackage: 45 city/map versions, 42 metropolitan versions, 15 metros. SHA-256 is in the [manifest](data/external_comparison/manifest.json).
+- Our GeoPackage: 48 city/map versions, 45 metropolitan versions, 15 metros. SHA-256 is in the [manifest](data/external_comparison/manifest.json).
 - [Robotaxi Tracker](https://github.com/Robotaxi-Tracker/robotaxi-service-areas/tree/3857624ca629688cbfbedde1b75d2ece7c2af0f6): revision `3857624`, committed 2026-09-10.
 - [AV Map](https://github.com/path-avmap/av-map-data/tree/3c94c4f924c69f425a54debe0c594a286bf16d8c): revision `3c94c4f`, committed 2026-05-15.
 
@@ -84,7 +84,7 @@ Downloads remain under gitignored `raw/external_comparison/`; the manifest hashe
 
 - [Latest pairs](data/external_comparison/latest.csv).
 - [All best historical pairs](data/external_comparison/best_historical_match.csv) and [one per external latest polygon](data/external_comparison/best_historical_latest.csv).
-- [Pairs using our recorded validity at the external event date](data/external_comparison/at_external_date.csv): 11 comparable events; dates before our first record in a metro are omitted.
+- [Pairs using our recorded validity at the external event date](data/external_comparison/at_external_date.csv): 14 comparable events; dates before our first record in a metro are omitted.
 - [Summary](data/external_comparison/summary.json) and [manifest](data/external_comparison/manifest.json).
 
 No access/status filter is applied to the polygons. Date uncertainty, invitation-only access and the inherited gaps must be considered separately from overlap metrics.

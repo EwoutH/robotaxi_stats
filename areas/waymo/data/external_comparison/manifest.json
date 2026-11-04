@@ -77,8 +77,8 @@
   },
   "ours": {
     "file": "waymo_service_areas.gpkg",
-    "sha256": "bfda28a12d2eef22777a4eb5656fa89800f5555f2c56fb235f58d6eb2883c95b",
+    "sha256": "80791c08e6c6c8146e7d74ffb8a7814f2fb6c999d834d2ce55010a6ab9dd06ad",
     "layer": "metro_versions",
-    "versions": 42
+    "versions": 45
   }
 }

@@ -8,15 +8,15 @@ method and caveats are at the end.*
 
 | | |
 |---|---|
-| Residents inside a service area, Feb 2024 | **1.65 million** (Phoenix, SF) |
+| Residents inside documented areas, May 2023 | **1.42 million** (Phoenix, SF) |
 | Residents inside a service area, Nov 4 2026 | **11.3 million** (11.0–11.6 M with ±150 m boundary error), 5.2 M housing units |
-| Growth | ×6.9 in 2.7 years; **×2.2 in the last 12 months** (5.05 M → 11.3 M) |
-| At year end | 2024: 3.6 M · 2025: 5.8 M · 2026 (to date): 11.3 M |
+| Growth | ×8.0 since May 2023; **×2.2 in the last 12 months** (5.05 M → 11.3 M) |
+| At year end | 2023: 1.8 M · 2024: 3.6 M · 2025: 5.8 M · 2026 (to date): 11.3 M |
 | Share living in Phoenix + SF + LA | **58%** (vs. 48% of the area) |
 | Average density | 6,200 residents per sq mi of land (7,700 at the end of 2024) |
 | Metros where the launch area was denser than later expansions | **11 of 11** |
 
-Residents grew a bit slower than area (×6.9 vs ×8.7), because the newer land is
+Residents grew a bit slower than area (×8.0 vs ×8.9 since May 2023), because the newer land is
 less dense. The ten 2026 launches cover 715 sq mi but only 3.6 M residents.
 
 ## Residents served over time
@@ -25,8 +25,8 @@ less dense. The ten 2026 launches cover 715 sq mi but only 3.6 M residents.
 
 San Francisco (2.6 M) and Los Angeles (2.5 M) each have almost twice Phoenix's residents
 (1.4 M) on less or similar area. The Oct 27 2026 LA expansion to Torrance added
-**828,000 residents**, the largest addition by any expansion. Only the original SF and
-LA launch areas (each ~840–880k) were larger.
+**828,000 residents**, the largest addition by any expansion. The original LA map covered about 880,000 residents; the earlier
+December 2022 SF public area now reconstructed covered about 529,000.
 
 ## Residents vs. area
 
@@ -47,19 +47,20 @@ The diagonal lines are constant density (drawn area, including water). Three gro
 ![Launch density vs later expansions](figures/report/density_added.svg)
 
 In every metro that has expanded, the land added later is less dense than the launch area.
-SF's first map (the city, 19,400 per sq mi) is three times as dense as everything added since
-(6,000). In the other metros, later land is 28–40% less dense. San
+SF's first reconstructed public map (December 2022, 15,800 per sq mi) is over twice
+as dense as everything added since (6,800). In the other metros, later land is 28–40% less dense. San
 Antonio's drop looks dramatic but rests on a single 6 sq mi expansion with 5,600 residents.
 
 This is the "dense core first" pattern you'd expect: launch where trip demand per square
 mile is highest, then extend to suburbs, airports and corridors.
 
-Combined over all metros, average density fell from about 7,600 to 6,200 residents per sq mi
-of land:
+Combined over all metros, the current average is about 6,200 residents per sq mi of land. The earliest
+SF-only segment is incomplete because Phoenix is not yet reconstructed:
 
 ![Average density over time](figures/report/density_over_time.svg)
 
-The early peak (9,300) is LA's dense launch (Apr 2024). The large drops come from
+Early density changes reflect both the addition of Phoenix history (May 2023) and
+LA's dense first map (Apr 2024). Later large drops come from
 low-density additions: Phoenix's expansion (Jul 2024), Austin's July 2025 expansion
 and Atlanta's first recovered map (Jul 2025). Since then, 2026's mix of new metros and suburban expansions has
 lowered the average slowly.
@@ -124,11 +125,13 @@ Atlanta, Las Vegas and Dallas 7–18× as often. The patterns that stand out:
   [the repair report](report_history_repair.md). Other metros still need a separate
   archive-provenance audit.
 
-- **2020 population on 2024–2026 polygons.** Growth since 2020 isn't included, so Sun Belt
+- **2020 population on 2022–2026 polygons.** Growth since 2020 isn't included, so Sun Belt
   metros (Austin, Phoenix, Nashville, Orlando) are probably a few percent low.
 - **Residents aren't riders.** Downtowns, the Strip, airports and campuses draw far more trips
   than their resident count suggests. Jobs (LEHD LODES) would be a good next layer.
-- "Launch" for Phoenix and SF means the first archived map (Feb 2024), not the real launch.
+- "Launch" for Phoenix and SF means the first reconstructed boundary (May 2023 and
+  December 2022), not the real launch. Before May 2023, totals are incomplete.
+  See [the early-history extension](report_early_history.md).
 - Areas marked "Gradually adding riders" (Dallas, Denver, Houston, Las Vegas, Tampa) are
   counted in full.
 

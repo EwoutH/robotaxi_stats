@@ -1,0 +1,2 @@
+city,image_file,from_date,through_date,source_url,reason
+Phoenix,c4ae70c4e9335b83.png,2024-02-12,2024-04-28,https://support.google.com/waymo/answer/13768098?hl=en,General Help page retained May 2023 boundary after the dated July 7 2023 expansion announcement. Keep raw records but exclude stale map from operational history; see report_early_history.md.

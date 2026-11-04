@@ -348,6 +348,7 @@ def stats(V, E, D, T, W, meta):
         "residents_now_band_m": [round(T[T.date == T.date.max()].pop_lo.sum() / 1e6, 2),
                                  round(T[T.date == T.date.max()].pop_hi.sum() / 1e6, 2)],
         "residents_first_snapshot_m": round(first.sum() / 1e6, 2),
+        "first_snapshot_incomplete": "Phoenix" not in set(T[T.date == T.date.min()].metro),
         "residents_year_ago_m": round(yr_ago / 1e6, 2),
         "housing_units_now_m": round(cur.housing.sum() / 1e6, 2),
         "share_original_three_now": round(cur[orig]["pop"].sum() / cur["pop"].sum(), 3),

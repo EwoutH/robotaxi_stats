@@ -1,29 +1,36 @@
 {
- "first_date": "2024-02-12",
+ "first_date": "2023-05-04",
  "last_date": "2026-11-04",
- "total_first": 218,
+ "earliest_map_date": "2022-12-16",
+ "totals_incomplete_before": "2023-05-04",
+ "total_first": 212,
  "total_now": 1891,
- "growth_factor": 8.7,
- "annual_growth_factor": 2.21,
- "doubling_months": 10.5,
+ "growth_factor": 8.9,
+ "annual_growth_factor": 1.87,
+ "doubling_months": 13.3,
  "total_end_of_year": {
+  "2022": null,
+  "2023": 259,
   "2024": 468,
   "2025": 838,
   "2026": 1890
  },
  "launches_per_year": {
-  "2024": 4,
+  "2022": 1,
+  "2023": 1,
+  "2024": 2,
   "2025": 1,
   "2026": 10
  },
  "expansions_per_year": {
+  "2023": 3,
   "2024": 3,
   "2025": 8,
   "2026": 16
  },
- "n_expansions": 27,
- "added_by_expansions": 1081,
- "removed_by_expansions": 13.9,
+ "n_expansions": 30,
+ "added_by_expansions": 1093,
+ "removed_by_expansions": 15.8,
  "max_removed_single": {
   "metro": "Phoenix",
   "removed": 3.6884545213836804
@@ -37,18 +44,18 @@
    "added": 127.4
   },
   {
-   "metro": "Phoenix",
-   "date": "2024-07-12",
-   "before": 174.0,
-   "after": 299.6,
-   "added": 125.7
-  },
-  {
    "metro": "Los Angeles",
    "date": "2026-10-27",
    "before": 124.5,
    "after": 213.3,
    "added": 89.2
+  },
+  {
+   "metro": "Phoenix",
+   "date": "2024-07-12",
+   "before": 215.0,
+   "after": 299.6,
+   "added": 85.2
   },
   {
    "metro": "San Francisco",
@@ -101,7 +108,7 @@
   "Phoenix": 174.0,
   "San Antonio": 53.1,
   "San Diego": 46.2,
-  "San Francisco": 44.4,
+  "San Francisco": 34.1,
   "Tampa": 45.4
  },
  "share_original_three_first": 1.0,
@@ -205,5 +212,5 @@
    "area_mi2": 45.4
   }
  ],
- "median_days_between_expansions": 142.0
+ "median_days_between_expansions": 149.0
 }

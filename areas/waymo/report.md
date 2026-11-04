@@ -1,6 +1,6 @@
-# Waymo service areas, Feb 2024 - Nov 2026
+# Waymo service areas, Dec 2022 - Nov 2026
 
-*Based on 45 service-area map versions traced from Waymo's help pages via archive.org
+*Based on 48 service-area map versions traced from dated Waymo announcements and archived help pages
 (see [README.md](README.md) for method and accuracy). All areas are as drawn by
 Waymo, in square miles; figures and numbers come from [05_report_figures.py](05_report_figures.py).*
 
@@ -10,14 +10,20 @@ Waymo, in square miles; figures and numbers come from [05_report_figures.py](05_
 
 | | |
 |---|---|
-| Total service area, Feb 2024 | **218 sq mi** (Phoenix, SF) |
+| Comparable service area, May 2023 | **212 sq mi** (Phoenix, SF) |
 | Total service area, Nov 4 2026 | **1,891 sq mi** across 15 metros |
-| Growth | **×8.7** in 2.7 years, about ×2.2 per year (doubling every ~10 months) |
-| Total at year end | 2024: 468 · 2025: 838 · 2026 (to date): 1,891 |
-| New metros on the page | 2024: 4 · 2025: 1 · 2026: 10 |
-| Expansions of existing metros | 2024: 3 · 2025: 8 · 2026: 16 (median 142 days between expansions in a metro) |
-| Area added by expansions | 1,081 sq mi, of which **13.9 sq mi** removed elsewhere (1.3%) |
+| Growth since May 2023 | **×8.9** in 3.5 years, about ×1.9 per year (doubling every ~13 months) |
+| Total at year end | 2023: 259 · 2024: 468 · 2025: 838 · 2026 (to date): 1,891 |
+| First documented metro maps | 2022: 1 · 2023: 1 · 2024: 2 · 2025: 1 · 2026: 10 |
+| Expansions of existing metros | 2023: 3 · 2024: 3 · 2025: 8 · 2026: 16 (median 149 days between expansions in a metro) |
+| Area added by expansions | 1,093 sq mi, of which **15.8 sq mi** removed elsewhere (1.4%) |
 | Share of Phoenix + SF + LA | 100% in early 2024 → **48%** now |
+
+Early SF maps now reach December 2022; the [early-history report](report_early_history.md)
+documents five announcement-based dates and the stale Phoenix map exclusion.
+Before May 2023, totals omit Phoenix, which was already operating: those totals
+are incomplete and are not used as a growth baseline. First documented maps
+are not necessarily service launches.
 
 ## Growth went from linear to compounding
 
@@ -49,10 +55,10 @@ than Phoenix, SF and LA combined (914 sq mi).
 
 New metros follow a template. The median launch size in 2026 was **49 sq mi**, and every
 2026 launch was between 22 and 58 sq mi. Atlanta's first recovered map is 58 sq mi; its June 2025 launch announcement
-described 65 sq mi. Our polygon records the area drawn on the recovered map. The 2024 Phoenix launch (174 sq mi) reflects an older,
+described 65 sq mi. Our polygon records the area drawn on the recovered map. The first reconstructed Phoenix map (174 sq mi, May 2023) reflects an older,
 already-mature market.
 
-Metros then grow fast. SF grew **×7.8** (44 → 348 sq mi), Austin ×4.2, LA ×3.8 and
+Metros then grow fast. SF grew **×10.2** (34 to 348 sq mi), Austin ×4.2, LA ×3.8 and
 Miami ×2.9 in just four months.
 
 ![Service area over time per metro](figures/report/growth_grid.svg)
@@ -66,16 +72,16 @@ On the same scale, the gap is clear: Phoenix and SF are now about 350 sq mi each
 | Date observed or announced | Metro | Before to after (sq mi) | Added |
 |---|---|---|---|
 | 2025-11-13 | San Francisco | 134 to 262 | +127 |
-| 2024-07-12 | Phoenix | 174 to 300 | +126 |
 | 2026-10-27 | Los Angeles | 124 to 213 | +89 |
+| 2024-07-12 | Phoenix | 215 to 300 | +85 |
 | 2026-06-06 | San Francisco | 278 to 339 | +63 |
 | 2026-06-06 | Miami | 89 to 151 | +62 |
 | 2026-09-07 | Phoenix | 300 to 353 | +57 |
 | 2025-07-17 | Austin | 36 to 89 | +54 |
 | 2025-06-17 | San Francisco | 81 to 134 | +53 |
 
-**Service areas almost never shrink.** Across 27 expansions, only 13.9 sq mi
-disappeared from earlier maps, against 1,081 sq mi added. The largest removal is
+**Service areas almost never shrink.** Across 30 expansions, only 15.8 sq mi
+disappeared from earlier maps, against 1,093 sq mi added. The largest removal is
 3.7 sq mi (Phoenix, Sep 2026). Some of that removed area is probably just tracing
 error between map versions rather than a real cutback.
 
@@ -98,7 +104,8 @@ served. All panels for a metro share the same extent. Basemap: Esri World Light 
 
 ![San Francisco versions](figures/report/versions_san_francisco.svg)
 
-San Francisco grew in nine steps: the city (Feb 2024) → Daly City (Aug 2024) →
+San Francisco now has eleven documented states: the partial public area
+(December 2022), expansion in February 2023, the full city (October 2023) → Daly City (Aug 2024) →
 a separate Silicon Valley zone (Mar 2025) → SF down to Burlingame (Jun 2025) → the
 full Peninsula linking both (Nov 2025) → San José and Campbell (2026).
 
@@ -109,14 +116,14 @@ and Inglewood. The latest map (Oct 27 2026) adds the South Bay down to Torrance.
 
 ## Caveats
 
-- Dates normally record the first verified map observation; two Austin dates use
-  corroborated operator announcements. `date_basis`, `date_source_url`, and
+- Dates normally record the first verified map observation; early SF/Phoenix and
+  two Austin dates use dated operator announcements. `date_basis`, `date_source_url`, and
   `change_window_start` retain that distinction. An observed change is bounded by
   the last observation of the old city map and the first observation of the new one. For metros
   that were already running when the archive starts (Phoenix, SF), "launch" means
-  "first map on the page".
-- The provenance repair covers Austin and Atlanta. Other metros retain the earlier
-  reconstruction and still need a separate archive-provenance audit.
+  "first reconstructed map".
+- The provenance work covers Austin/Atlanta and the early SF/Phoenix extension.
+  Other history retains the earlier reconstruction pending a separate audit.
 - Areas are as drawn, including water inside the blue fill (Biscayne Bay, Mission Bay).
   Boundaries are accurate to roughly 50–300 m, so differences under ~2 sq mi between
   versions aren't meaningful.

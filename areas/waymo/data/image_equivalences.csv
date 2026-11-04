@@ -1,3 +1,5 @@
 image_file,canonical_image_file,reason
 18ccaf90de73db2a.png,a17bce4af505af3e.png,Archived lower-resolution rendition of the same Austin image URL; visually checked same map; 99.42 percent polygon IoU. Use higher-resolution geometry without creating a November expansion.
 bc80777b07f31156.png,26906866e5700854.png,Archived lower-resolution rendition of the same Atlanta image URL; visually checked same map; 99.51 percent polygon IoU. Use higher-resolution geometry without creating a November expansion.
+ab8bf08856e2f763.png,b075e64ec356d811.png,Same whole-SF map: dated October 9 2023 announcement is a 393px rendition; retain existing higher-resolution geometry. Independently georeferenced IoU 98.93 percent; area difference 0.03 sq mi; visually checked.
+6022b859b2774917.png,c4ae70c4e9335b83.png,Same connected May 2023 Phoenix map; existing tightly cropped rendition gives more map pixels than the announcement canvas resized for fitting. Independently georeferenced IoU 99.35 percent; visually checked. This equivalence does not validate later stale Help-page observations.

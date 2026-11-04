@@ -88,7 +88,8 @@ unmerged Tracker updates have not been imported.
 Current coverage remains approximately **1,891 sq mi and 11.33 million residents**.
 Historical totals change: year-end 2025 coverage is now **838 sq mi**, versus
 952 before repair; residents are about **5.8 million**, versus 6.2 million before.
-The restored sequence adds three metropolitan boundary versions: 42 instead of 39.
+This repair added three metropolitan boundary versions: 42 instead of 39.
+The subsequent [early-history extension](report_early_history.md) brings the count to 45.
 
 All derived area/population tables and history-dependent figures were regenerated.
 The unchanged SF/LA version maps and current-only graphics retain their previous
@@ -123,10 +124,10 @@ changes visible rather than silently substituting today's content.
 
 Six archive-provenance regression tests pass (`python -m unittest discover -s
 areas/waymo/tests -v`, from the repository root). Integration checks confirm all
-42 metropolitan geometries are valid, population records join one-to-one,
+then-current 42 metropolitan geometries are valid, population records join one-to-one,
 current areas and other-page observations are unchanged, and recorded image
 hashes and the external-comparison input hash match the local files.
-Both site data loaders also run successfully; the GeoJSON contains all 42
+Both site data loaders also run successfully; the GeoJSON contained all 42
 versions and the corrected dates, uncertainty windows and source attribution.
 
 A full site build passes after clearing the two generated data-loader caches.

@@ -161,6 +161,22 @@ def save_qa(rgba, roads, params, mask, path):
 WORKERS = max(1, min(6, (os.cpu_count() or 2) - 2))
 
 
+def service_mask(rgba, image_file):
+    """Some historical legends distinguish public from employee-only blue."""
+    settings = DATA / "image_mask_settings.csv"
+    if settings.exists():
+        rows = pd.read_csv(settings).set_index("image_file")
+        if image_file in rows.index:
+            row = rows.loc[image_file]
+            mask = G.blue_mask(rgba, min_blue_red=int(row.min_blue_red))
+            if row.clip_circle:
+                h, w = mask.shape
+                yy, xx = np.ogrid[:h, :w]
+                mask[(xx - w / 2) ** 2 + (yy - h / 2) ** 2 > (h / 2) ** 2] = 0
+            return mask
+    return G.blue_mask(rgba)
+
+
 def process_one(image_file, metro, first_seen, use_manual):
     rgba = G.load_rgba(IMG / image_file)
     lat, lon, rad = METROS[metro]
@@ -172,7 +188,7 @@ def process_one(image_file, metro, first_seen, use_manual):
     else:
         (q, *params), roads = georeference(rgba, metro)
         src = "auto"
-    save_qa(rgba, roads, params, G.blue_mask(rgba),
+    save_qa(rgba, roads, params, service_mask(rgba, image_file),
             QA / f"{metro.replace(' ', '_')}_{first_seen}_{image_file[:8]}.jpg")
     return dict(image_file=image_file, metro=metro, s=params[0], x0=params[1], y0=params[2],
                 quality=round(q, 4), source=src, first_seen=first_seen)
@@ -180,6 +196,9 @@ def process_one(image_file, metro, first_seen, use_manual):
 
 def main():
     snaps = pd.read_csv(DATA / "snapshot_images.csv")
+    history = DATA / "history_sources.csv"
+    if history.exists():
+        snaps = pd.concat([snaps, pd.read_csv(history)], ignore_index=True)
     snaps = snaps[snaps.image_file.notna() & (snaps.image_file != "")]
     imgs = snaps.groupby("image_file").agg(city=("city", "first"),
                                            first_seen=("date", "min")).reset_index()
@@ -241,7 +260,7 @@ def main():
     recs = []
     for _, p in P.iterrows():
         rgba = G.load_rgba(IMG / p.image_file)
-        mask = G.blue_mask(rgba)
+        mask = service_mask(rgba, p.image_file)
         poly = mask_to_polygon(mask)
         if poly is None:
             continue

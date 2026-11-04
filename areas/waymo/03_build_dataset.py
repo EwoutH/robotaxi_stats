@@ -39,6 +39,14 @@ def main():
     snaps = pd.read_csv(DATA / "snapshot_images.csv", dtype={"snapshot": str})
     snaps["date_basis"] = "legacy_map_observation"
     snaps["date_source_url"] = ""
+    exclusions_path = DATA / "observation_exclusions.csv"
+    if exclusions_path.exists():
+        # Preserve raw observations, but exclude a documented stale map from
+        # the operational history when a dated operator map supersedes it.
+        for rule in pd.read_csv(exclusions_path).itertuples():
+            stale = ((snaps.city == rule.city) & (snaps.image_file == rule.image_file)
+                     & snaps.date.between(rule.from_date, rule.through_date))
+            snaps = snaps.loc[~stale].copy()
     verified_path = DATA / "snapshot_sources.csv"
     if verified_path.exists():
         verified = pd.read_csv(verified_path, dtype={"page": str, "snapshot": str}).fillna("")
@@ -90,7 +98,7 @@ def main():
             else:
                 runs[-1][2] = d
         for i, (img, first, last) in enumerate(runs):
-            first_records = g[g.date == first]
+            first_records = g[(g.date == first) & (g.image_file == img)].sort_values("snapshot").tail(1)
             basis = first_records.date_basis.iloc[0]
             nxt_run = runs[i + 1][1] if i + 1 < len(runs) else None
             if nxt_run is not None:

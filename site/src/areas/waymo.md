@@ -89,6 +89,9 @@ dateLabel.textContent = date;
 ```js
 // Stats for the selected metros on the slider date.
 const live = selFeatures.filter((f) => activeOn(f, date));
+if (date < "2023-05-04" && inSel("Phoenix")) {
+  display(html`<p class="small muted">Early coverage is incomplete: Phoenix was already operating, but its boundary has not yet been reconstructed for this date. Totals include documented areas only.</p>`);
+}
 ```
 
 <div class="stats">
@@ -241,4 +244,4 @@ Inputs.table(
 )
 ```
 
-<p class="small muted">Traced from Waymo's published maps. Dates usually record the first verified map observation; two Austin dates use corroborated operator announcements. Observed changes can have happened earlier within the documented date window. Austin/Atlanta archive provenance was repaired in November 2026; other metros retain the earlier reconstruction pending audit. Boundaries are accurate to roughly 50–300 m; residents are from the 2020 Census. Details: <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report.md">area report</a>, <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report_population.md">population report</a>.</p>
+<p class="small muted">Traced from Waymo's published maps. Dates usually record the first verified map observation; early SF/Phoenix and two Austin dates use dated operator announcements. Observed changes can have happened earlier within the documented date window. Austin/Atlanta archive provenance was repaired in November 2026; the early SF/Phoenix extension also excludes a documented stale Help map. Other history retains the earlier reconstruction pending audit. Boundaries are accurate to roughly 50–300 m; residents are from the 2020 Census. Details: <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report.md">area report</a>, <a href="https://github.com/EwoutH/robotaxi_stats/blob/main/areas/waymo/report_population.md">population report</a>.</p>

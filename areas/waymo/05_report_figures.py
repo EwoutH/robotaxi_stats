@@ -101,6 +101,11 @@ def fig_total(W, ylabel="sq mi", total_fmt="{:,.0f} sq mi total", fmt="{:,.0f}",
     fig, ax = plt.subplots(figsize=(9, 5.2))
     ax.stackplot(D.index, *[D[m] for m in order], colors=colors, step="post",
                  edgecolor=SURFACE, linewidth=0.5)
+    if first["Phoenix"] > D.index[0]:
+        ax.axvspan(D.index[0], first["Phoenix"], color=GRID, alpha=0.45, zorder=0)
+        ax.text(D.index[0] + (first["Phoenix"] - D.index[0]) / 2, 0.96,
+                "Incomplete\nhistory", transform=ax.get_xaxis_transform(),
+                ha="center", va="top", fontsize=7, color=INK2)
     end = D.index[-1]
     total = D.iloc[-1].sum()
     ax.annotate(total_fmt.format(total), (end, total), xytext=(-4, 6),
@@ -155,7 +160,7 @@ def fig_timeline(E, end):
     ax.set_yticks(range(len(order)), order)
     ax.tick_params(axis="y", length=0)
     ax.grid(axis="y", visible=False)
-    ax.set_xlim(pd.Timestamp("2024-01-01"), end + pd.Timedelta(days=10))
+    ax.set_xlim(E.date.min().replace(month=1, day=1), end + pd.Timedelta(days=10))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
     leg = [Line2D([], [], marker="o", ls="", color=ORANGE, ms=8, label="first map (launch on page)"),
            Line2D([], [], marker="o", ls="", color=BLUE, ms=8, label="expansion")]
@@ -345,10 +350,16 @@ def fig_versions_map(mv, metro, fname, ncols=3):
 def stats(mv, v, ts, E, W):
     W = W[W.index <= ts.date.max()]  # drop the plotting padding
     tot = W.sum(axis=1)
-    t0, t1 = tot.index[0], tot.index[-1]
+    # SF-only early records omit Phoenix, which was already operating. Start
+    # comparable totals once both pre-existing markets have a known boundary.
+    complete_from = mv[mv.metro.isin(["Phoenix", "San Francisco"])].groupby("metro").valid_from.min().max()
+    comparable = tot.loc[complete_from:]
+    t0, t1 = comparable.index[0], comparable.index[-1]
     yrs = (t1 - t0).days / 365.25
-    growth = (tot.iloc[-1] / tot.iloc[0]) ** (1 / yrs)
-    by_year = {str(y): int(tot[tot.index.year == y].iloc[-1]) for y in sorted(set(tot.index.year))}
+    growth = (tot.iloc[-1] / comparable.iloc[0]) ** (1 / yrs)
+    by_year = {str(y): int(tot[tot.index.year == y].iloc[-1]) if
+               tot[tot.index.year == y].index[-1] >= complete_from else None
+               for y in sorted(set(tot.index.year))}
     ex = E[E.kind == "expansion"]
     la = E[E.kind == "launch"]
     cur = mv[mv.valid_to.isna()].copy()
@@ -358,8 +369,10 @@ def stats(mv, v, ts, E, W):
     orig_share = (W[ORIGINAL].sum(axis=1) / tot)
     return {
         "first_date": str(t0.date()), "last_date": str(t1.date()),
-        "total_first": round(tot.iloc[0]), "total_now": round(tot.iloc[-1]),
-        "growth_factor": round(tot.iloc[-1] / tot.iloc[0], 1),
+        "earliest_map_date": str(tot.index[0].date()),
+        "totals_incomplete_before": str(complete_from.date()),
+        "total_first": round(comparable.iloc[0]), "total_now": round(tot.iloc[-1]),
+        "growth_factor": round(tot.iloc[-1] / comparable.iloc[0], 1),
         "annual_growth_factor": round(growth, 2),
         "doubling_months": round(12 * np.log(2) / np.log(growth), 1),
         "total_end_of_year": by_year,

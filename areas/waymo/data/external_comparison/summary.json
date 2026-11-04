@@ -4,7 +4,7 @@
     "missing_our_metros": [
       "Las Vegas"
     ],
-    "latest_external_vs_best_historical_median_iou_pct": 97.99070546212992,
+    "latest_external_vs_best_historical_median_iou_pct": 97.99070546214378,
     "latest_external_vs_best_historical_metros_iou_ge_95": 11,
     "latest_external_vs_best_historical_median_abs_area_difference_pct": 0.791055429287113
   },

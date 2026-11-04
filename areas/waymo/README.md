@@ -1,15 +1,16 @@
 # Waymo service areas over time
 
 Historical, georeferenced polygons of Waymo's robotaxi service areas, traced from
-the map images on Waymo's help pages as archived by the Wayback Machine:
+dated operator announcements and the map images on Waymo's help pages archived
+by the Wayback Machine:
 
 - https://support.google.com/waymo/answer/9059119 (service areas, Feb 2024 to now)
 - https://support.google.com/waymo/answer/16011725 (Austin & Atlanta on Uber, Jun 2025 to now)
 
 Waymo publishes these areas as styled PNG maps with no coordinates.
 This folder rebuilds them as vector data:
-45 canonical map versions across 15 metros, from Feb 2024 to Nov 4 2026
-(47 image renditions; 42 metropolitan boundary versions).
+48 canonical map versions across 15 metros, from Dec 16 2022 to Nov 4 2026
+(52 image renditions; 45 metropolitan boundary versions).
 
 **History repaired (2026-11-04):** Austin/Atlanta now use verified archive
 captures and actual replay timestamps. Austin's July 2025 and January 2026 dates
@@ -18,10 +19,16 @@ See [the repair report](report_history_repair.md) and
 [external comparison](report_external_comparison.md). Other metros retain the
 prior reconstruction and still need a separate archive-provenance audit.
 
-**Findings:** see [report.md](report.md). The total area grew from 218 to 1,891 sq mi,
+**Earlier history added (2026-11-04):** five dated SF/Phoenix announcement maps
+extend the series to December 2022. Stale early-2024 Phoenix maps are excluded
+from operational history while retained in the raw index. See
+[the early-history report](report_early_history.md). Before May 2023, coverage is
+incomplete because Phoenix was already operating but is not yet reconstructed.
+
+**Findings:** see [report.md](report.md). Comparable total area grew from 212 to 1,891 sq mi,
 10 new metros launched in 2026, and service areas almost never shrink.
 [report_population.md](report_population.md) adds residents (2020 Census): 11.3 million
-people now live inside a service area, up from 1.65 million in Feb 2024.
+people now live inside a service area, up from 1.42 million in May 2023.
 
 ## Outputs
 
@@ -55,8 +62,8 @@ The archive is sampled irregularly (125 snapshots of the main page). A change
 happened somewhere between `change_window_start` (the last snapshot showing the old
 map) and `valid_from` (the first snapshot showing the new one). `valid_to` is
 open (empty) for maps still on the page. The current full-page map set was fetched on 2026-10-27; Austin/Atlanta were
-rechecked on 2026-11-04. `date_basis` and `date_source_url` distinguish the two
-operator-announcement date additions from first verified map observations.
+rechecked on 2026-11-04. `date_basis` and `date_source_url` distinguish
+operator-announcement dates from first verified map observations.
 `change_window_start` now uses the last old observation of the same city, not an
 unrelated metro snapshot date.
 
@@ -81,7 +88,7 @@ unrelated metro snapshot date.
 
 ## Accuracy and caveats
 
-- The original 42 images and five recovered renditions were checked by eye in `qa/`. Highway shields and OSM roads line
+- The original 42 images and ten recovered renditions were checked by eye in `qa/`. Highway shields and OSM roads line
   up everywhere. Expect boundary errors of roughly 50–300 m, larger on older,
   coarser maps (2024 SF/Austin).
 - Checks against reported figures: Phoenix 300 sq mi in Jul 2024 (reported
@@ -241,3 +248,12 @@ the index. To run the provenance regression checks from the repository root:
 ```bash
 python -m unittest discover -s areas/waymo/tests -p "test_*.py" -v
 ```
+
+### Restoring early announcement maps
+
+Run `python fetch_history_images.py` before step 2 to restore the five checked
+announcement renditions from `data/history_image_sources.csv`. Both original and
+prepared hashes must match. `data/image_mask_settings.csv` selects the public-only
+December 2022 SF fill; `data/manual_georef.csv` fixes its checked alignment.
+`data/observation_exclusions.csv` documents stale observations retained in the raw
+index but omitted from the operational history.
