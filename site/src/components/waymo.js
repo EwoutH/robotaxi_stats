@@ -131,6 +131,11 @@ export async function areaMap(container, dark) {
     attributionControl: {compact: true}
   });
   map.addControl(new maplibregl.NavigationControl({showCompass: false}), "top-right");
+  // Exposed on the map so the page can switch units and react to the located position.
+  map.geolocate = new maplibregl.GeolocateControl({fitBoundsOptions: {maxZoom: 12}});
+  map.addControl(map.geolocate, "top-right");
+  map.scale = new maplibregl.ScaleControl({maxWidth: 120, unit: "imperial"});
+  map.addControl(map.scale, "bottom-left");
   await map.once("load");
   map.resize();
   map.addSource("areas", {type: "geojson", data: empty});

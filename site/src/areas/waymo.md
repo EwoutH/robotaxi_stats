@@ -100,7 +100,15 @@ dateLabel.textContent = date;
 const mapDiv = display(html`<div class="map"></div>`);
 const map = await areaMap(mapDiv, dark);
 map.on("click", (e) => popup(map, e.lngLat, lookup(features, [e.lngLat.lng, e.lngLat.lat])));
+// "My location" also answers whether that spot is served.
+map.geolocate.on("geolocate", ({coords: {longitude, latitude}}) =>
+  popup(map, [longitude, latitude], lookup(features, [longitude, latitude]))
+);
 invalidation.then(() => map.remove());
+```
+
+```js
+map.scale.setUnit(unit === "km" ? "metric" : "imperial");
 ```
 
 ```js
