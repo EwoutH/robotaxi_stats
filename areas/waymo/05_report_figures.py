@@ -30,7 +30,7 @@ plt.rcParams.update({
     "axes.edgecolor": GRID, "axes.labelcolor": INK2, "xtick.color": INK2, "ytick.color": INK2,
     "text.color": INK, "font.size": 9, "axes.spines.top": False, "axes.spines.right": False,
     "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6, "axes.axisbelow": True,
-    "svg.fonttype": "none", "font.family": "DejaVu Sans",
+    "svg.fonttype": "none", "svg.hashsalt": "robotaxi_stats", "font.family": "DejaVu Sans",
 })
 
 
@@ -93,6 +93,11 @@ def fig_total(W, ylabel="sq mi", total_fmt="{:,.0f} sq mi total", fmt="{:,.0f}",
     order = orig + newer
     colors = _shades("#9ec5f4", "#0d366b", len(orig)) + _shades("#fbd0b9", "#a83a10", len(newer))
     D = W[order].fillna(0)
+    # A step needs only changes and the endpoint, not thousands of repeated days.
+    # Keep the daily table for statistics; this is an exact plotting reduction.
+    changed = D.ne(D.shift()).any(axis=1)
+    changed.iloc[-1] = True
+    D = D.loc[changed]
     fig, ax = plt.subplots(figsize=(9, 5.2))
     ax.stackplot(D.index, *[D[m] for m in order], colors=colors, step="post",
                  edgecolor=SURFACE, linewidth=0.5)
@@ -126,7 +131,7 @@ def fig_total(W, ylabel="sq mi", total_fmt="{:,.0f} sq mi total", fmt="{:,.0f}",
               loc="upper left", frameon=False)
     ax.set_title(title, loc="left", fontsize=11)
     fig.tight_layout(rect=(0, 0, 0.83, 1))
-    fig.savefig(OUT / fname)
+    fig.savefig(OUT / fname, metadata={"Date": None})
     plt.close(fig)
 
 
