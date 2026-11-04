@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-04T12:42:51.930448</dc:date>
+    <dc:date>2026-11-04T13:04:12.938041</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -171,13 +171,13 @@ L 517.031899 24.077422
     <g id="ytick_1">
      <g id="line2d_17"/>
      <g id="text_10">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="130.0275" y="39.680376" transform="rotate(-0 130.0275 39.680376)">San Francisco  (Dec 2022)</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="130.0275" y="39.680376" transform="rotate(-0 130.0275 39.680376)">Phoenix  (Dec 2022)</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_18"/>
      <g id="text_11">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="130.0275" y="57.085602" transform="rotate(-0 130.0275 57.085602)">Phoenix  (May 2023)</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #52514e" x="130.0275" y="57.085602" transform="rotate(-0 130.0275 57.085602)">San Francisco  (Dec 2022)</text>
      </g>
     </g>
     <g id="ytick_3">
@@ -260,13 +260,13 @@ L 517.031899 24.077422
     </g>
    </g>
    <g id="line2d_32">
-    <path d="M 170.9137 36.26108 
-L 514.74183 36.26108 
+    <path d="M 231.28825 36.26108 
+L 519.913661 36.26108 
 " clip-path="url(#p2e776f3e48)" style="fill: none; stroke: #e4e3df; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_33">
-    <path d="M 324.205887 53.666305 
-L 519.913661 53.666305 
+    <path d="M 170.9137 53.666305 
+L 514.74183 53.666305 
 " clip-path="url(#p2e776f3e48)" style="fill: none; stroke: #e4e3df; stroke-width: 3; stroke-linecap: round"/>
    </g>
    <g id="line2d_34">
@@ -359,8 +359,8 @@ z
 " style="stroke: #fcfcfb; stroke-width: 1.5"/>
     </defs>
     <g clip-path="url(#p2e776f3e48)">
-     <use xlink:href="#md1f63755ee" x="170.9137" y="36.26108" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
-     <use xlink:href="#md1f63755ee" x="324.205887" y="53.666305" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
+     <use xlink:href="#md1f63755ee" x="231.28825" y="36.26108" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
+     <use xlink:href="#md1f63755ee" x="170.9137" y="53.666305" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
      <use xlink:href="#md1f63755ee" x="194.690973" y="71.07153" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
      <use xlink:href="#md1f63755ee" x="172.414846" y="88.476755" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
      <use xlink:href="#md1f63755ee" x="197.441247" y="105.881981" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
@@ -391,8 +391,8 @@ z
 " style="stroke: #fcfcfb; stroke-width: 1.5"/>
     </defs>
     <g clip-path="url(#p2e776f3e48)">
-     <use xlink:href="#m2abe3abb8f" x="514.74183" y="36.26108" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
-     <use xlink:href="#m2abe3abb8f" x="519.913661" y="53.666305" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
+     <use xlink:href="#m2abe3abb8f" x="519.913661" y="36.26108" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
+     <use xlink:href="#m2abe3abb8f" x="514.74183" y="53.666305" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
      <use xlink:href="#m2abe3abb8f" x="367.27891" y="71.07153" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
      <use xlink:href="#m2abe3abb8f" x="298.028973" y="88.476755" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
      <use xlink:href="#m2abe3abb8f" x="255.766788" y="105.881981" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
@@ -409,10 +409,10 @@ z
     </g>
    </g>
    <g id="text_25">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="522.74183" y="38.339205" transform="rotate(-0 522.74183 38.339205)">×10.2</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="527.913661" y="38.339205" transform="rotate(-0 527.913661 38.339205)">×4.0</text>
    </g>
    <g id="text_26">
-    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="527.913661" y="55.74443" transform="rotate(-0 527.913661 55.74443)">×2.0</text>
+    <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="522.74183" y="55.74443" transform="rotate(-0 522.74183 55.74443)">×10.2</text>
    </g>
    <g id="text_27">
     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="375.27891" y="73.149655" transform="rotate(-0 375.27891 73.149655)">×3.8</text>
@@ -439,24 +439,24 @@ z
     <text style="font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52514e" x="232.812504" y="247.201907" transform="rotate(-0 232.812504 247.201907)">×1.8</text>
    </g>
    <g id="text_35">
-    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="133.5275" y="18.077422" transform="rotate(-0 133.5275 18.077422)">Service area at launch vs now (metros in order of launch)</text>
+    <text style="font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="133.5275" y="18.077422" transform="rotate(-0 133.5275 18.077422)">Service area at earliest data / launch vs now</text>
    </g>
    <g id="legend_1">
     <g id="PathCollection_3">
      <g>
-      <use xlink:href="#md1f63755ee" x="500.000625" y="265.992578" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
+      <use xlink:href="#md1f63755ee" x="446.511094" y="265.992578" style="fill: #eb6834; stroke: #fcfcfb; stroke-width: 1.5"/>
      </g>
     </g>
     <g id="text_36">
-     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="516.200625" y="268.355078" transform="rotate(-0 516.200625 268.355078)">at launch</text>
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="462.711094" y="268.355078" transform="rotate(-0 462.711094 268.355078)">earliest data / launch</text>
     </g>
     <g id="PathCollection_4">
      <g>
-      <use xlink:href="#m2abe3abb8f" x="500.000625" y="279.493281" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
+      <use xlink:href="#m2abe3abb8f" x="446.511094" y="279.493281" style="fill: #2a78d6; stroke: #fcfcfb; stroke-width: 1.5"/>
      </g>
     </g>
     <g id="text_37">
-     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="516.200625" y="281.855781" transform="rotate(-0 516.200625 281.855781)">now</text>
+     <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #0b0b0b" x="462.711094" y="281.855781" transform="rotate(-0 462.711094 281.855781)">now</text>
     </g>
    </g>
   </g>
