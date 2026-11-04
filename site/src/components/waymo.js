@@ -4,30 +4,17 @@ import maplibregl from "npm:maplibre-gl@5.24.0";
 export const slug = (name) => name.toLowerCase().replace(/\s+/g, "-");
 export const fmtInt = d3.format(",.0f");
 export const fmtMillions = (x) => `${d3.format(".2f")(x / 1e6)}M`;
+// Sum of residents; "–" if none are known yet, and "+" if some are missing (a new map before step 6 ran).
+export function fmtResidents(values) {
+  const known = values.filter((v) => v != null);
+  if (!known.length) return "–";
+  return fmtMillions(d3.sum(known)) + (known.length < values.length ? "+" : "");
+}
 export const fmtDate = d3.utcFormat("%Y-%m-%d");
 export const BLUE = "#2a78d6";
 
 // Area units. Source data is in square miles.
 export const UNITS = {mi: {label: "sq mi", factor: 1}, km: {label: "km²", factor: 2.589988}};
-
-// State of each metro, for selecting metros by state. Add new metros here.
-export const STATE = {
-  Atlanta: "Georgia",
-  Austin: "Texas",
-  Dallas: "Texas",
-  Denver: "Colorado",
-  Houston: "Texas",
-  "Las Vegas": "Nevada",
-  "Los Angeles": "California",
-  Miami: "Florida",
-  Nashville: "Tennessee",
-  Orlando: "Florida",
-  Phoenix: "Arizona",
-  "San Antonio": "Texas",
-  "San Diego": "California",
-  "San Francisco": "California",
-  Tampa: "Florida"
-};
 
 function el(tag, className, text, onclick) {
   const node = document.createElement(tag);
@@ -37,11 +24,12 @@ function el(tag, className, text, onclick) {
   return node;
 }
 
-// Metro picker grouped by state: click a metro to toggle it, or a state name to toggle all its metros.
+// Metro picker grouped by state (states: {metro: state name}): click a metro to toggle it, or a state name to toggle all its metros.
 // Works as an Observable input: .value is the selected metros, and it fires "input" on change.
-export function metroPicker(metros, initial = []) {
+export function metroPicker(metros, states, initial = []) {
   const root = el("div", "picker");
-  const groups = d3.sort(d3.groups(metros, (m) => STATE[m] ?? "Other"), ([state]) => state);
+  // Alphabetical, with metros missing a state ("Other") last.
+  const groups = d3.sort(d3.groups(metros, (m) => states[m] ?? "Other"), ([state]) => [state === "Other", state]);
   let value = metros.filter((m) => initial.includes(m));
   const set = (next) => {
     value = metros.filter((m) => next.includes(m));

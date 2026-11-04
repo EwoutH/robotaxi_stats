@@ -6,7 +6,7 @@ toc: false
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
 
 ```js
-import {slug, fmtInt, fmtMillions, fmtDate, BLUE, UNITS, ageColor, activeOn, lookup, areaMap, popup, bounds, metroPicker, segmented} from "../components/waymo.js";
+import {slug, fmtInt, fmtMillions, fmtResidents, fmtDate, BLUE, UNITS, ageColor, activeOn, lookup, areaMap, popup, bounds, metroPicker, segmented} from "../components/waymo.js";
 
 const areas = FileAttachment("../data/waymo_areas.geojson").json();
 const waymo = FileAttachment("../data/waymo_stats.json").json();
@@ -29,7 +29,7 @@ const fmtMonth = (d) => d3.utcFormat("%b %Y")(new Date(d));
 <p class="lede">Where Waymo's robotaxis can take you, ${fmtMonth(dates[0])} to ${fmtMonth(dates.at(-1))}.</p>
 
 ```js
-const picked = view(metroPicker(allMetros, allMetros.filter((m) => fromHash.includes(slug(m)))));
+const picked = view(metroPicker(allMetros, waymo.states, allMetros.filter((m) => fromHash.includes(slug(m)))));
 ```
 
 ```js
@@ -93,7 +93,7 @@ const live = selFeatures.filter((f) => activeOn(f, date));
 
 <div class="stats">
   <div><div class="stat-label">Service area</div><div class="stat-value">${fmtArea(d3.sum(live, (f) => f.properties.area_mi2))}</div></div>
-  <div><div class="stat-label">Residents inside</div><div class="stat-value">${fmtMillions(d3.sum(live, (f) => f.properties.pop))}</div></div>
+  <div><div class="stat-label">Residents inside</div><div class="stat-value">${fmtResidents(live.map((f) => f.properties.pop))}</div></div>
   <div><div class="stat-label">Metros</div><div class="stat-value">${live.length}</div></div>
   <div><div class="stat-label">Expansions so far</div><div class="stat-value">${events.filter((d) => d.kind === "expansion" && fmtDate(d.date) <= date).length}</div></div>
   <div class="stats-unit">${unitInput}</div>
@@ -167,12 +167,14 @@ function growth(y, title, format) {
     height: picked.length > 1 ? 30 + 110 * picked.length : 260,
     marginRight: picked.length ? 100 : 20,
     x: {domain: xDomain, label: null},
-    y: {grid: true, label: null, ticks: 4},
+    y: {grid: true, label: null, ticks: 4, domain: [0, d3.max(rows, y) || 1], nice: true},
     fy: {label: null, axis: picked.length ? "right" : null},
     marks: [
       Plot.areaY(rows, {x: "date", y, fy: "metro", curve: "step-after", fill: BLUE, fillOpacity: 0.15}),
       Plot.lineY(rows, {x: "date", y, fy: "metro", curve: "step-after", stroke: BLUE, strokeWidth: 2}),
       Plot.ruleY([0]),
+      // Mark the latest value, so a metro with a single snapshot still shows up.
+      Plot.dot(rows, Plot.selectLast({x: "date", y, fy: "metro", fill: BLUE, r: 3})),
       Plot.tip(rows, Plot.pointerX({x: "date", y, fy: "metro", title: (d) => `${d.metro}\n${fmtDate(d.date)}\n${format(d)}`}))
     ]
   });
@@ -181,7 +183,7 @@ function growth(y, title, format) {
 
 <div class="grid grid-cols-2">
   <div class="card">${growth((d) => d.area_mi2 * K, `Service area (${areaLabel})`, (d) => fmtArea(d.area_mi2))}</div>
-  <div class="card">${growth((d) => d.pop / 1e6, "Residents inside (millions)", (d) => `${fmtInt(d.pop)} residents`)}</div>
+  <div class="card">${growth((d) => (d.pop == null ? null : d.pop / 1e6), "Residents inside (millions)", (d) => `${fmtInt(d.pop)} residents`)}</div>
 </div>
 
 <div class="card">

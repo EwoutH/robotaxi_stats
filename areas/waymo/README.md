@@ -112,6 +112,10 @@ curl -o raw/census/tl_2023_us_uac20.zip https://www2.census.gov/geo/tiger/TIGER2
 
 Each state is read once (CA/TX take a minute) and cached as `raw/census/blocks_<fips>.parquet`.
 
+Commit and push `waymo_service_areas.gpkg`, `data/` and (for a new metro) `06_population.py`.
+The site (`site/`, published by `.github/workflows/site.yml`) then rebuilds by itself: new
+metros, dates and expansions appear automatically, grouped by the state from `STATE` above.
+
 ### Daily check (GitHub Action)
 
 `.github/workflows/waymo_maps.yml` runs `07_watch_live.py` every day at 06:17 UTC

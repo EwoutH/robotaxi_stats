@@ -9,6 +9,7 @@ on:
       - "site/**"
       - "areas/waymo/waymo_service_areas.gpkg"
       - "areas/waymo/data/**"
+      - "areas/waymo/06_population.py"
       - ".github/workflows/site.yml"
   workflow_dispatch:
 

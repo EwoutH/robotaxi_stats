@@ -65,7 +65,7 @@ jobs:
             echo
             cat "$RUNNER_TEMP/summary.md"
             echo
-            echo "Saved in \`areas/waymo/live/\`. To add them to the dataset, run steps 1-6 (see \`areas/waymo/README.md\`) and check the new \`qa/\` images."
+            echo "Saved in \`areas/waymo/live/\`. To add them to the dataset, run steps 1-6 (see \`areas/waymo/README.md\`), check the new \`qa/\` images, then commit and push the GeoPackage and \`data/\`. The site updates by itself."
             echo
             echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           } > body.md
