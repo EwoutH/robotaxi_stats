@@ -1,0 +1,22 @@
+{
+  "request_url": "https://web.archive.org/web/20250612165522id_/https://support.google.com/waymo/answer/16011725?hl=en",
+  "response_url": "https://web.archive.org/web/20250729215009id_/https://support.google.com/waymo/answer/16011725?hl=en",
+  "response_status": 200,
+  "memento_datetime": "Tue, 29 Jul 2025 21:50:09 GMT",
+  "note": "The requested June capture redirected to July 29; evidence below compares the July 29 replay against our cache bearing that same July 29 timestamp, not against June.",
+  "cached_page": "raw/snapshots_legacy/16011725_20250729215009.html",
+  "cached_page_sha256": "c4c357d7210b079d0df48d959ec3f8cb3672cb2925123154a24f7fc858c01cf3",
+  "replayed_page_sha256": "e2b6e41af168e574aa41117f4191569510bfbd4b72cfaff27669f12f5a5c3f53",
+  "cached_maps": {
+    "Austin": "https://lh3.googleusercontent.com/_bevS_0CYmGsCANy-B07P7EBWHLvP44raIhX6KKmLTpWeDMis_IzBvt2uqLuh9ZkzQ",
+    "Atlanta": "https://lh3.googleusercontent.com/ZoSf2FyB53BiiMs9aryOeZAYMBCSTmJx2oqW1QzGc2APMYgqqQHOggyGq3chSwx5lzk"
+  },
+  "replayed_maps": {
+    "Austin": "https://storage.googleapis.com/support-kms-prod/bqyZU18Fa0u1Tmy8ppEe1XMznt5aUKhKuzX6",
+    "Atlanta": "https://storage.googleapis.com/support-kms-prod/yTzhAdxh9Ukb1rbfPkCAIush4lxe0i2L0yXy"
+  },
+  "fetcher_branch": "original if original.startswith(\"https://support\") else f\"https://web.archive.org/web/{ts}id_/{original}\"",
+  "finding": "HTTPS Google Support original URLs are fetched live and saved under historical capture timestamps.",
+  "original_cached_page": "raw/snapshots/16011725_20250729215009.html",
+  "repair_note": "Original contaminated bytes retained in the legacy cache; current snapshot index was repaired on 2026-11-04."
+}
