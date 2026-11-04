@@ -54,16 +54,6 @@ const {label: areaLabel, factor: K} = UNITS[unit];
 const fmtArea = (mi2) => `${fmtInt(mi2 * K)} ${areaLabel}`;
 ```
 
-<div class="stats">
-  <div><div class="stat-label">Service area</div><div class="stat-value">${fmtArea(d3.sum(current, (f) => f.properties.area_mi2))}</div></div>
-  <div><div class="stat-label">Residents inside</div><div class="stat-value">${fmtMillions(d3.sum(current, (f) => f.properties.pop))}</div></div>
-  <div><div class="stat-label">${picked.length ? "First launch" : "Metros"}</div><div class="stat-value">${picked.length ? fmtMonth(d3.min(selFeatures, (f) => f.properties.valid_from)) : allMetros.length}</div></div>
-  <div><div class="stat-label">Expansions</div><div class="stat-value">${events.filter((d) => d.kind === "expansion").length}</div></div>
-  <div class="stats-unit">${unitInput}</div>
-</div>
-
-## Map
-
 ```js
 // Slider over snapshot dates, with a play button that steps through them.
 const slider = Inputs.range([0, dates.length - 1], {step: 1, value: dates.length - 1});
@@ -95,6 +85,19 @@ invalidation.then(stop);
 const date = dates[pick];
 dateLabel.textContent = date;
 ```
+
+```js
+// Stats for the selected metros on the slider date.
+const live = selFeatures.filter((f) => activeOn(f, date));
+```
+
+<div class="stats">
+  <div><div class="stat-label">Service area</div><div class="stat-value">${fmtArea(d3.sum(live, (f) => f.properties.area_mi2))}</div></div>
+  <div><div class="stat-label">Residents inside</div><div class="stat-value">${fmtMillions(d3.sum(live, (f) => f.properties.pop))}</div></div>
+  <div><div class="stat-label">Metros</div><div class="stat-value">${live.length}</div></div>
+  <div><div class="stat-label">Expansions so far</div><div class="stat-value">${events.filter((d) => d.kind === "expansion" && fmtDate(d.date) <= date).length}</div></div>
+  <div class="stats-unit">${unitInput}</div>
+</div>
 
 ```js
 const mapDiv = display(html`<div class="map"></div>`);
