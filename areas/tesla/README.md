@@ -11,7 +11,7 @@ Run both with the system `python` (`ds` environment). Set `GITHUB_TOKEN` (e.g. `
 
 ## Sources and dates
 
-- **Robotaxi Tracker** polygons are taken from the Tesla Robotaxi app's fleet areas (`source: tesla_robotaxi_app_fleet_areas` in each file), so they are close to official. Their date is the commit date (`date_kind = first_seen`), which is when the tracker recorded the shape, not necessarily when Tesla changed it. History starts with the repo's public import on 2026-04-20.
+- **Robotaxi Tracker** polygons come from the Tesla Robotaxi app's fleet areas. Until 2026-08-30 they were hand-drawn copies (files without properties, edges 25–115 m off on average); since then they are Tesla's exact polygons from the app's API. Their date is the commit date (`date_kind = first_seen`), which is when the tracker recorded the shape, not necessarily when Tesla changed it. History starts with the repo's public import on 2026-04-20.
 - **AV Map** covers Austin (5 versions, June–October 2025) and the Bay Area (July 2025). Its dates are announcement dates from news reports (`date_kind = announced`); `source_url` links each one. The repo has not changed since May 2026.
 - The two agree where they overlap: AV Map's October 2025 Austin shape and the tracker's April 2026 one have an intersection over union of 0.989 (Bay Area: 0.976).
 - `iou_prev` is the overlap with the city's previous version. Values around 0.97–0.99 with small area changes are usually re-exports or small edits; lower values are expansions.
