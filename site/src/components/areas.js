@@ -334,8 +334,8 @@ export function eventsChart(data, events, {metros, width, unit}) {
   });
 }
 
-// Every event, newest first.
-export function eventsTable(data, events, unit) {
+// Every event, newest first. columns adds page-specific columns, {label: (event) => value}, with their format.
+export function eventsTable(data, events, unit, {columns = {}, format = {}} = {}) {
   const added = `Added (${unit.label})`;
   const after = `Area after (${unit.label})`;
   return Inputs.table(
@@ -345,14 +345,16 @@ export function eventsTable(data, events, unit) {
       Kind: d.kind_label,
       [added]: d.added * unit.factor,
       [after]: d.after * unit.factor,
-      ...(data.hasPop ? {"Residents added": d.pop_added} : {})
+      ...(data.hasPop ? {"Residents added": d.pop_added} : {}),
+      ...Object.fromEntries(Object.entries(columns).map(([label, get]) => [label, get(d)]))
     })),
     {
       format: {
         Date: fmtDate,
         [added]: fmtInt,
         [after]: fmtInt,
-        "Residents added": (x) => (x == null ? "–" : fmtInt(x))
+        "Residents added": (x) => (x == null ? "–" : fmtInt(x)),
+        ...format
       }
     }
   );
