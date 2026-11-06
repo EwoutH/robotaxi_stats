@@ -6,7 +6,7 @@ toc: false
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
 
 ```js
-import {slug, fmtInt, fmtMillions, fmtResidents, fmtDate, BLUE, UNITS, ageColor, activeOn, lookup, areaMap, popup, bounds, metroPicker, segmented} from "../components/waymo.js";
+import {slug, fmtInt, fmtMillions, fmtResidents, fmtDate, BLUE, UNITS, ageColor, activeOn, lookup, areaMap, popup, bounds, metroPicker, segmented} from "../components/areas.js";
 
 const areas = FileAttachment("../data/waymo_areas.geojson").json();
 const waymo = FileAttachment("../data/waymo_stats.json").json();
