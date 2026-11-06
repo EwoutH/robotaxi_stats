@@ -39,10 +39,10 @@ const switches = versions.flatMap((p, i) => {
 const cityOf = (metro) => versions.find((p) => p.metro === metro)?.city ?? metro;
 const statusRow = (d) => d.metro ?? d.name;
 const listed = new Map(status.cities.map((d) => [statusRow(d), d]));
-const notListed = allMetros.filter((m) => !listed.has(m));
 const firstNamed = status.cities.filter((d) => d.since === status.cities_from).map((d) => d.name);
 const soon = status.cities.filter((d) => d.status === "soon" && !allMetros.includes(statusRow(d)));
 const list = (xs) => new Intl.ListFormat("en").format(xs);
+const DATE_IS = {announced: "Announced", first_seen: "First seen", opened: "Listed open"};
 ```
 
 <div class="eyebrow"><a href="../">Robotaxi stats</a></div>
@@ -132,7 +132,7 @@ eventsChart(data, sel.events, {metros, width, unit})
 ```js
 eventsTable(data, sel.events, unit, {
   columns: {
-    "Date is": (d) => (d.date_kind === "announced" ? "Announced" : "First seen"),
+    "Date is": (d) => DATE_IS[d.date_kind],
     "On tesla.com": (d) => (d.kind === "expansion" ? null : listed.get(d.metro)?.status === "open" ? listed.get(d.metro).since : null),
     Source: (d) => d.source_url
   },
@@ -143,7 +143,7 @@ eventsTable(data, sel.events, unit, {
 })
 ```
 
-<p class="small muted">A metro's first boundary counts as a launch when its date is an announcement, and as earliest data when it is the date Robotaxi Tracker first recorded it; the service may have started earlier, as the date tesla.com first listed it open shows. Later boundaries count as expansions when they add at least 5% to the area; smaller edits stay in the map and charts.</p>
+<p class="small muted">A metro's first boundary counts as a launch when its date is an announcement or the date tesla.com first listed the city open, and as earliest data when it is the date Robotaxi Tracker first recorded it; the service may have started earlier, as the date tesla.com first listed it open shows. Later boundaries count as expansions when they add at least 5% to the area; smaller edits stay in the map and charts.</p>
 
 ## What the data covers
 
@@ -179,7 +179,7 @@ display(Plot.plot({
       insetRight: 1,
       insetTop: 6,
       insetBottom: 6,
-      title: (d) => `${d.city}: ${fmtInt(d.area_mi2)} sq mi\nfrom ${d.valid_from} (${d.date_kind === "announced" ? "announced" : "first seen"})${d.valid_to ? ` to ${d.valid_to}` : ", latest"}${d.carried ? "\nno source covers this stretch" : ""}`,
+      title: (d) => `${d.city}: ${fmtInt(d.area_mi2)} sq mi\nfrom ${d.valid_from} (${DATE_IS[d.date_kind].toLowerCase()})${d.valid_to ? ` to ${d.valid_to}` : ", latest"}${d.carried ? "\nno source covers this stretch" : ""}`,
       tip: true
     }),
     Plot.ruleX([new Date(lastChange)], {strokeDasharray: "3,3", strokeOpacity: 0.6}),
@@ -206,7 +206,7 @@ display(Plot.plot({
 
 **What it has**
 
-- Boundary shapes for ${allMetros.length} metros, ${versions.length} versions in all. Up to ${lastAnnounced} they come from [AV Map](https://github.com/path-avmap/av-map-data), dated by news reports of Tesla's announcements. From ${firstSeen} on they come from [Robotaxi Tracker](https://github.com/Robotaxi-Tracker/robotaxi-service-areas), which takes them from the Tesla Robotaxi app's fleet areas.
+- Boundary shapes for the ${allMetros.length} metros tesla.com lists as open, ${versions.length} versions in all, each from the date tesla.com first listed it open (or earlier, for ${list(firstNamed)}, which it listed before naming any other city). Up to ${lastAnnounced} they come from [AV Map](https://github.com/path-avmap/av-map-data), dated by news reports of Tesla's announcements. From ${firstSeen} on they come from [Robotaxi Tracker](https://github.com/Robotaxi-Tracker/robotaxi-service-areas), which takes them from the Tesla Robotaxi app's fleet areas.
 - Tesla's own city status ("open" or "coming soon") from archived copies of [tesla.com/robotaxi](https://www.tesla.com/robotaxi), ${status.first_capture} to ${status.last_capture}.
 
 </div>
@@ -218,7 +218,7 @@ display(Plot.plot({
 - **${lastAnnounced} to ${firstSeen}.** No source has boundaries in this stretch; the last announced ones are assumed to stay in force. Where the sources meet, ${list(switches.map((d) => `${d.city} (${d.change > 0 ? "+" : "−"}${fmtInt(Math.abs(d.change))} sq mi)`))} changed by the difference between the sources, not on the ground.
 - **Anything after ${lastChange}**, the latest recorded change. Changes Tesla announced since are missing until Robotaxi Tracker records them.
 - **Residents.** There are no population figures for Tesla's areas yet.
-- tesla.com lists ${list(soon.map((d) => d.name))} as coming soon, without boundaries, and does not list ${list(notListed.map(cityOf))}. It named no cities before ${status.cities_from}, so ${list(firstNamed)}'s date there is when the page first named ${firstNamed.length > 1 ? "them" : "it"}, not a launch.
+- **Cities tesla.com does not list as open.** It lists ${list(soon.map((d) => d.name))} as coming soon, without boundaries${status.not_shown.length ? html`, and does not list ${list(status.not_shown)}, so ${status.not_shown.length > 1 ? "their" : "its"} boundaries are left out` : ""}. It named no cities before ${status.cities_from}, so ${list(firstNamed)}'s date there is when the page first named ${firstNamed.length > 1 ? "them" : "it"}, not a launch.
 
 </div>
 </div>
