@@ -1,7 +1,8 @@
 name: Tesla service areas
 
 # Daily re-run of the Tesla scripts (see areas/tesla/README.md). Commits updated
-# data and opens an issue when a boundary version or a city status changes.
+# data and starts the site workflow; opens an issue when a boundary version or a
+# city status changes.
 
 on:
   schedule:
@@ -11,6 +12,7 @@ on:
 permissions:
   contents: write
   issues: write
+  actions: write # start the site workflow (pushes made with this token don't trigger it)
 
 concurrency:
   group: tesla-areas
@@ -40,8 +42,10 @@ jobs:
       - name: Update city status
         run: python 02_city_status.py
 
-      - name: Commit changes
+      - name: Commit and deploy
         id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -54,6 +58,7 @@ jobs:
           git commit -m "Tesla areas: daily update $(date -u +%Y-%m-%d)"
           git pull --rebase
           git push
+          gh workflow run site.yml --ref "${{ github.ref_name }}"
           if [ -s "$RUNNER_TEMP/changes.diff" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; fi
 
       - name: Open issue for changes
