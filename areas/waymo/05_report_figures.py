@@ -1,8 +1,11 @@
 """Step 5: exploratory statistics and SVG figures for report.md.
 
-Writes figures/report/*.svg and data/report_stats.json.
+Writes figures/report/*.svg and data/report_stats.json. Only for report.md, which
+was written once (2026-11); the site doesn't need this step.
 """
 import json
+import sys
+from importlib import import_module
 from pathlib import Path
 
 import geopandas as gpd
@@ -15,6 +18,9 @@ from matplotlib.patches import Patch
 from pyproj import Geod
 
 ROOT = Path(__file__).parent
+sys.path.insert(0, str(ROOT))
+_dataset = import_module("03_build_dataset")
+event_kind, expansion_events = _dataset.event_kind, _dataset.expansion_events
 OUT = ROOT / "figures" / "report"
 OUT.mkdir(parents=True, exist_ok=True)
 GEOD = Geod(ellps="WGS84")
@@ -46,31 +52,6 @@ def load():
             df[c] = pd.to_datetime(df[c])
     ts = pd.read_csv(ROOT / "data" / "area_timeseries.csv", parse_dates=["date"])
     return mv.sort_values(["metro", "valid_from"]), v, ts
-
-
-def event_kind(metro, date, first):
-    if not first:
-        return "expansion"
-    if metro in ("Phoenix", "San Francisco") and pd.Timestamp(date) == pd.Timestamp("2022-12-16"):
-        return "earliest_data"
-    return "launch"
-
-
-def expansion_events(mv):
-    rows = []
-    for m, g in mv.groupby("metro"):
-        prev = None
-        for _, r in g.iterrows():
-            if prev is None:
-                rows.append(dict(metro=m, date=r.valid_from, kind=event_kind(m, r.valid_from, True), added=r.area_mi2,
-                                 removed=0.0, before=0.0, after=r.area_mi2))
-            else:
-                rows.append(dict(metro=m, date=r.valid_from, kind="expansion",
-                                 added=mi2(r.geometry.difference(prev.geometry)),
-                                 removed=mi2(prev.geometry.difference(r.geometry)),
-                                 before=prev.area_mi2, after=r.area_mi2))
-            prev = r
-    return pd.DataFrame(rows)
 
 
 def daily_total(ts, end):
@@ -422,7 +403,6 @@ def main():
     fig_versions_map(mv, "Los Angeles", "versions_los_angeles.svg")
     S = stats(mv, v, ts, E, W)
     (ROOT / "data" / "report_stats.json").write_text(json.dumps(S, indent=1, default=str))
-    E.round(2).to_csv(ROOT / "data" / "expansion_events.csv", index=False)
     print(json.dumps(S, indent=1, default=str))
 
 

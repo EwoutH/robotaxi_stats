@@ -5,7 +5,8 @@ Output: waymo_service_areas.gpkg with layers
   versions      one row per city label per map version (valid_from / valid_to)
   metro_versions  city labels merged per metro (e.g. "San Francisco" +
                   "Silicon Valley" -> San Francisco Bay Area), one row per change
-and the same as GeoJSON, plus data/area_timeseries.csv (area per metro per snapshot).
+and the same as GeoJSON, plus data/area_timeseries.csv (area per metro per snapshot)
+and data/expansion_events.csv (every launch and expansion per metro).
 
 Dates: the archive is sampled irregularly, so a change happened somewhere
 between `change_window_start` (last snapshot showing the previous state) and
@@ -33,6 +34,33 @@ def geod_area_km2(geom):
     if geom is None or geom.is_empty:
         return 0.0
     return abs(GEOD.geometry_area_perimeter(geom)[0]) / 1e6
+
+
+def event_kind(metro, date, first):
+    if not first:
+        return "expansion"
+    if metro in ("Phoenix", "San Francisco") and pd.Timestamp(date) == pd.Timestamp("2022-12-16"):
+        return "earliest_data"
+    return "launch"
+
+
+def expansion_events(mv):
+    """Area before/after, added and removed (sq mi) for every metro version."""
+    mi2 = lambda g: geod_area_km2(g) / KM2_PER_MI2
+    rows = []
+    for m, g in mv.groupby("metro"):
+        prev = None
+        for _, r in g.iterrows():
+            if prev is None:
+                rows.append(dict(metro=m, date=r.valid_from, kind=event_kind(m, r.valid_from, True), added=r.area_mi2,
+                                 removed=0.0, before=0.0, after=r.area_mi2))
+            else:
+                rows.append(dict(metro=m, date=r.valid_from, kind="expansion",
+                                 added=mi2(r.geometry.difference(prev.geometry)),
+                                 removed=mi2(prev.geometry.difference(r.geometry)),
+                                 before=prev.area_mi2, after=r.area_mi2))
+            prev = r
+    return pd.DataFrame(rows)
 
 
 def main():
@@ -181,6 +209,7 @@ def main():
     V.to_file(ROOT / "waymo_service_area_versions.geojson", driver="GeoJSON")
     MV.to_file(ROOT / "waymo_service_area_metro_versions.geojson", driver="GeoJSON")
     TS.to_csv(DATA / "area_timeseries.csv", index=False)
+    expansion_events(MV).round(2).to_csv(DATA / "expansion_events.csv", index=False)
     pd.set_option("display.width", 220)
     print(V.drop(columns="geometry").to_string())
     print(MV.drop(columns="geometry").to_string())
