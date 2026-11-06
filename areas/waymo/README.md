@@ -122,12 +122,11 @@ python 06_population.py           # only metros that changed
 Missing inputs are downloaded: Geofabrik road extracts into `raw/osm/pbf/` (step 2)
 and 2020 Census blocks per state plus the 2020 Urban Areas into `raw/census/`
 (step 6, ~100-750 MB per state). Each state is read once and cached as
-`raw/census/blocks_<fips>.parquet`. A new metro needs a `METROS` entry (and ideally
-a `PBF` entry) in `02_georeference.py` and a `STATE` entry in `06_population.py`.
+`raw/census/blocks_<fips>.parquet`. A new metro needs one row in [`areas/metros.csv`](../metros.csv): centre, search radius, state and state FIPS code, and ideally a Geofabrik extract.
 
-Commit and push `waymo_service_areas.gpkg`, `data/` and (for a new metro) the scripts.
+Commit and push `waymo_service_areas.gpkg`, `data/` and (for a new metro) `metros.csv`.
 The site (`site/`, published by `.github/workflows/site.yml`) then rebuilds by itself: new
-metros, dates and expansions appear automatically, grouped by the state from `STATE` above.
+metros, dates and expansions appear automatically, grouped by the state in `metros.csv`.
 
 ### Daily check (GitHub Action)
 
@@ -160,7 +159,7 @@ maps with the check results; the QA images are in the run's `qa` artifact.
 of the previous version. Service areas almost never shrink, and a misaligned fit
 lands kilometres off (the Nov 2026 Las Vegas map shifted by 5 km keeps only 45%).
 
-If stage 2 fails (bad fit, a real shrinkage, a new city without a `METROS` entry), the
+If stage 2 fails (bad fit, a real shrinkage, a new city without a row in `metros.csv`), the
 capture is already committed and the issue says so. Fix it locally: `git pull`, run the
 steps above and look at the new `qa/*.jpg`. If a fit is wrong, add a row to
 `data/manual_georef.csv` (`image_file, s, x0, y0`), delete that image's row in
@@ -194,9 +193,11 @@ committed, so the dataset can be rebuilt without the images or the slow fit. Kee
   same map reached through a new URL isn't processed twice.
 - **City labels.** "San Francisco" + "Silicon Valley" (Mar–Nov 2025) became
   "San Francisco Bay Area". Austin left the main page in Mar 2025 and lives on the
-  Uber page (`answer/16011725`) together with Atlanta. `METROS` / `ALIASES` in
-  `02_georeference.py` map labels to metros. A new city needs a `METROS` entry
-  (centre and search radius) and, for offline roads, a `PBF` entry.
+  Uber page (`answer/16011725`) together with Atlanta. The `aliases` column in
+  `metros.csv` and `metro_of()` in `areas/metros.py` map labels to metros: an alias is matched
+  exactly, otherwise a label belongs to the first metro (in file order) whose name it contains.
+  A new city needs a row there (centre and search radius) and, for offline roads, a
+  `geofabrik` extract.
 - **Overpass is unreliable for this.** On 2026-10-27 every public instance returned
   502/504 for hours. A batch of 15 metros × several tiles also exceeds the fair-use
   policy. The working route is Geofabrik state extracts

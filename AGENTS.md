@@ -2,6 +2,7 @@
 
 Public repo with data and analysis on robotaxi services, one folder per topic under `areas/` (and later possibly other top-level folders, e.g. `safety/`).
 
+- `areas/metros.csv` (read through `areas/metros.py`, which also has `metro_of()` for mapping labels): one row per metro with state, state FIPS code, centre, search radius, Geofabrik extract and aliases (e.g. Tesla's "Bay Area"). Used by the Waymo scripts and the site, and meant for the Tesla scripts; a new metro needs only a row here. Row order matters for `metro_of()`.
 - `areas/waymo/`: Waymo service areas over time. Numbered scripts `01_`-`03_`, `06_` and `07_` build the dataset; see its README. Run with the system `python` (`ds` environment). Regenerable inputs (`raw/`, `qa/`) are gitignored and stay local.
 - `areas/tesla/`: Tesla Robotaxi service areas over time, combined from community datasets (Robotaxi Tracker, AV Map) plus city status from archived tesla.com/robotaxi. Two re-runnable scripts; see its README.
 - `site/`: public Observable Framework site (GitHub Pages), one page per topic (`src/areas/waymo.md`) plus a landing page. Python data loaders in `site/src/data/` read straight from the topic folders; add new pages to `pages` in `observablehq.config.js`. Local: `npm install`, `npm run dev` (or `npm run build`) in `site/`.

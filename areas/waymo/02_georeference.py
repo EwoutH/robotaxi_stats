@@ -26,53 +26,23 @@ from shapely.geometry import Polygon, MultiPolygon
 from shapely.ops import transform as shp_transform
 
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parents[1]))
 import georef as G  # noqa: E402
+import metros as M  # noqa: E402
 
 ROOT = Path(__file__).parent
 DATA, IMG, QA = ROOT / "data", ROOT / "raw" / "images", ROOT / "qa"
 LIVE_IMG = ROOT / "live" / "images"
 QA.mkdir(exist_ok=True)
 
-# Approximate centre and search radius per metro (lat, lon, radius_km)
-METROS = {
-    "Phoenix": (33.45, -111.90, 75),
-    "San Francisco": (37.60, -122.25, 85),
-    "Los Angeles": (34.03, -118.35, 70),
-    "Austin": (30.30, -97.74, 55),
-    "Atlanta": (33.76, -84.39, 55),
-    "Miami": (25.80, -80.25, 60),
-    "Dallas": (32.80, -96.80, 60),
-    "Houston": (29.76, -95.40, 60),
-    "Denver": (39.74, -104.95, 55),
-    "Las Vegas": (36.15, -115.17, 50),
-    "Nashville": (36.16, -86.78, 55),
-    "Orlando": (28.50, -81.38, 55),
-    "San Antonio": (29.45, -98.50, 55),
-    "San Diego": (32.80, -117.15, 55),
-    "Tampa": (27.95, -82.46, 55),
-    "Washington DC": (38.90, -77.03, 50),
-    "Detroit": (42.35, -83.10, 55),
-    "New Orleans": (29.95, -90.07, 45),
-}
-# Geofabrik extract (raw/osm/pbf/<name>-latest.osm.pbf) per metro, used when
-# Overpass is unavailable. Download from https://download.geofabrik.de/north-america/us.html
-PBF = {"Miami": "florida", "Orlando": "florida", "Tampa": "florida",
-       "Nashville": "tennessee", "San Antonio": "texas", "Austin": "texas",
-       "Dallas": "texas", "Houston": "texas", "San Diego": "socal",
-       "Los Angeles": "socal", "Atlanta": "georgia", "Phoenix": "arizona",
-       "Denver": "colorado", "Las Vegas": "nevada", "San Francisco": "norcal",
-       "Detroit": "michigan", "New Orleans": "louisiana"}
-ALIASES = {"San Francisco Bay Area": "San Francisco", "Silicon Valley": "San Francisco",
-           "Peninsula": "San Francisco", "Washington, D.C.": "Washington DC",
-           "Metro Phoenix": "Phoenix", "Miami-Dade": "Miami"}
-
-
-def metro_of(city):
-    c = ALIASES.get(city, city)
-    for k in METROS:
-        if k.lower() in c.lower():
-            return k
-    return None
+# Metro metadata comes from areas/metros.csv (via areas/metros.py), shared with the
+# site and the Tesla scripts: centre and search radius (lat, lon, radius_km), state FIPS
+# code, and the Geofabrik extract (raw/osm/pbf/<name>-latest.osm.pbf) used when Overpass
+# is unavailable. metro_of() maps city labels to metros.
+METROS = {m: (r["lat"], r["lon"], r["radius_km"]) for m, r in M.METROS.items()}
+STATE = {m: r["state_fips"] for m, r in M.METROS.items()}
+PBF = {m: r["geofabrik"] for m, r in M.METROS.items() if r["geofabrik"]}
+metro_of = M.metro_of
 
 
 def georeference(rgba, metro):
@@ -225,7 +195,7 @@ def main():
             continue
         metro = metro_of(r.city)
         if metro is None:
-            print("!! no metro config for", r.city)
+            print(f"!! no metro for {r.city!r}: add it (or an alias) to areas/metros.csv")
             continue
         todo.append((r.image_file, metro, r.first_seen))
 

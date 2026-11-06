@@ -26,7 +26,8 @@ import requests
 import shapely
 
 sys.path.insert(0, str(Path(__file__).parent))
-METROS = import_module("02_georeference").METROS
+step2 = import_module("02_georeference")
+METROS, STATE = step2.METROS, step2.STATE
 event_kind = import_module("03_build_dataset").event_kind
 
 ROOT = Path(__file__).parent
@@ -37,11 +38,6 @@ BAND_M = 150  # boundary error used for the low/high band (README: 50-300 m)
 UA_MIN_SHARE = 0.10  # an Urban Area counts as "the metro's" if it holds >=10% of residents served now
 TIGER = "https://www2.census.gov/geo/tiger"
 
-STATE = {"Phoenix": "04", "San Francisco": "06", "Los Angeles": "06", "San Diego": "06",
-         "Austin": "48", "Dallas": "48", "Houston": "48", "San Antonio": "48",
-         "Atlanta": "13", "Miami": "12", "Orlando": "12", "Tampa": "12",
-         "Denver": "08", "Las Vegas": "32", "Nashville": "47",
-         "Washington DC": "11", "Detroit": "26", "New Orleans": "22"}
 BLOCK_COLS = ["GEOID20", "POP20", "HOUSING20", "ALAND20", "AWATER20", "INTPTLAT20", "INTPTLON20"]
 
 
@@ -166,7 +162,7 @@ def compute(mv, only):
             continue
         g = g.sort_values("valid_from")
         if metro not in STATE:
-            raise SystemExit(f"Add {metro} to STATE (state FIPS code) in 06_population.py")
+            raise SystemExit(f"Add {metro} to areas/metros.csv")
         print(metro, flush=True)
         B, crs = metro_blocks(metro, g.geometry.iloc[-1], ua, states)
         ua_pop = B.loc[B.in_metro_ua, "POP20"].sum()
