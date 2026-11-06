@@ -86,7 +86,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install geopandas pyogrio pyarrow shapely pyproj opencv-python-headless numpy pandas requests matplotlib osmium
+      - run: pip install geopandas pyogrio pyarrow shapely pyproj opencv-python-headless numpy pandas requests osmium
 
       - name: Georeference new maps (step 2)
         run: python 02_georeference.py
