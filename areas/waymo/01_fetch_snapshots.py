@@ -287,11 +287,17 @@ def main():
                         and r["city"] == city and r["image_url"] == url
                         and r["snapshot"] <= capture and r["image_file"]
                         and (IMG_DIR / r["image_file"]).exists()]
-                    if not matches:
+                    # maps that didn't change aren't in changes.csv, but 07_watch_live.py
+                    # recorded the whole capture in snapshot_images.csv
+                    recorded = [r for r in previous if r["page"] == page and r["snapshot"] == capture
+                        and r["city"] == city and r["image_url"] == url and r["image_file"]
+                        and (IMG_DIR / r["image_file"]).exists()]
+                    if not matches and not recorded:
                         raise RuntimeError(f"No committed image evidence for {city} at {capture}")
-                    saved = max(matches, key=lambda r: r["snapshot"])
+                    saved = max(matches, key=lambda r: r["snapshot"]) if matches else recorded[0]
                     cache[key] = {"image_file": saved["image_file"], "mode": "ci",
-                        "captured_at": saved["snapshot"], "response_url": f"live/images/{saved['image_file']}",
+                        "captured_at": saved["snapshot"],
+                        "response_url": f"live/images/{saved['image_file']}" if matches else url,
                         "sha256": hashlib.sha256((IMG_DIR / saved["image_file"]).read_bytes()).hexdigest()}
                 else:
                     known = [v for k, v in cache.items() if k.split("|", 2)[-1] == url and v]

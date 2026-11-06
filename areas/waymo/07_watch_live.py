@@ -8,14 +8,17 @@ Fetches today's live pages, parses them with the step 1 parser, and compares the
   live/changes.csv                        one row per added/changed/removed city
   live/state.json                         the current state, for the next check
 
-and asks the Wayback Machine to capture the page and the new images.
-01_fetch_snapshots.py reads live/ as extra snapshots, so the rest of the
-pipeline picks the changes up as usual.
+and adds the capture to data/snapshot_images.csv and data/snapshot_sources.csv,
+so steps 2-6 can run on the CI runner without the archived pages in raw/.
+It also asks the Wayback Machine to capture the page and the new images.
+01_fetch_snapshots.py reads live/ too, so a full local rebuild gives the same rows.
 
 Unlike raw/, live/ is committed: the CI runner has no other place to keep files.
 """
 import csv
+import datetime
 import gzip
+import hashlib
 import importlib.util
 import json
 import os
@@ -71,6 +74,30 @@ def wayback_save(url):
     except Exception as e:  # noqa: BLE001
         print(f"  wayback failed {url}: {e}")
         return False
+
+
+def record_capture(page, ts, cities, html):
+    """Add one CI capture (cities: [city, note, image_file, image_url]) to the
+    snapshot index and its sources, in the same form 01_fetch_snapshots.py writes."""
+    date = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
+    now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    page_sha = hashlib.sha256(html.encode("utf-8")).hexdigest()
+    index, sources = [], []
+    for city, note, fname, url in cities:
+        index.append(dict(page=page, snapshot=ts, date=date, city=city, note=note,
+                          image_url=url, image_file=fname))
+        img = fetch.IMG_DIR / fname if fname else None
+        sources.append(dict(page=page, snapshot=ts, city=city, image_file=fname, page_mode="ci",
+                            page_url=f"live/pages/{page}_{ts}.html.gz", page_sha256=page_sha,
+                            image_url=url, image_capture=ts if fname else "",
+                            image_sha256=hashlib.sha256(img.read_bytes()).hexdigest() if img else "",
+                            retrieved_at=now if fname else ""))
+    for name, rows in (("snapshot_images.csv", index), ("snapshot_sources.csv", sources)):
+        path = ROOT / "data" / name
+        with open(path, encoding="utf-8") as f:
+            fields = next(csv.reader(f))
+        with open(path, "a", newline="", encoding="utf-8") as f:
+            csv.DictWriter(f, fieldnames=fields).writerows(rows)
 
 
 def diff(old, new):
@@ -130,6 +157,7 @@ def main():
             continue
         with gzip.open(PAGES_DIR / f"{page}_{ts}.html.gz", "wt", encoding="utf-8") as f:
             f.write(r.text)
+        record_capture(page, ts, current, r.text)
         urls = {c[2]: c[3] for c in current}
         changes += [dict(date=f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}", snapshot=ts, page=page,
                          city=c, change=kind, image_file=img, image_url=urls.get(img, ""))
