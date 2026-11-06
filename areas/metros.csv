@@ -1,0 +1,19 @@
+metro,state,state_fips,lat,lon,radius_km,geofabrik,aliases
+Phoenix,Arizona,04,33.45,-111.90,75,arizona,Metro Phoenix
+San Francisco,California,06,37.60,-122.25,85,norcal,San Francisco Bay Area;Silicon Valley;Peninsula;Bay Area
+Los Angeles,California,06,34.03,-118.35,70,socal,
+Austin,Texas,48,30.30,-97.74,55,texas,
+Atlanta,Georgia,13,33.76,-84.39,55,georgia,
+Miami,Florida,12,25.80,-80.25,60,florida,Miami-Dade
+Dallas,Texas,48,32.80,-96.80,60,texas,
+Houston,Texas,48,29.76,-95.40,60,texas,
+Denver,Colorado,08,39.74,-104.95,55,colorado,
+Las Vegas,Nevada,32,36.15,-115.17,50,nevada,
+Nashville,Tennessee,47,36.16,-86.78,55,tennessee,
+Orlando,Florida,12,28.50,-81.38,55,florida,
+San Antonio,Texas,48,29.45,-98.50,55,texas,
+San Diego,California,06,32.80,-117.15,55,socal,
+Tampa,Florida,12,27.95,-82.46,55,florida,
+Washington DC,District of Columbia,11,38.90,-77.03,50,,"Washington, D.C."
+Detroit,Michigan,26,42.35,-83.10,55,michigan,
+New Orleans,Louisiana,22,29.95,-90.07,45,louisiana,
