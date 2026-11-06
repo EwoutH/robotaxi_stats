@@ -1,11 +1,12 @@
-"""Waymo service areas per metro and map version, as GeoJSON for the site."""
+"""Waymo service areas per metro and map version, as GeoJSON for the site (format: contract.py)."""
 
-import sys
 from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
 import shapely
+
+from contract import write_areas
 
 WAYMO = Path(__file__).resolve().parents[3] / "areas" / "waymo"
 
@@ -19,4 +20,4 @@ mv["pop"] = mv["pop"].round(-2)
 mv = mv[["metro", "valid_from", "valid_to", "change_window_start", "date_basis", "date_source_url",
          "area_mi2", "pop", "geometry"]].sort_values(["metro", "valid_from"])
 
-sys.stdout.write(mv.to_json(drop_id=True, na="null"))
+write_areas(mv, "waymo")

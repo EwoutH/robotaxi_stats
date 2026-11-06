@@ -29,7 +29,7 @@ const fmtMonth = (d) => d3.utcFormat("%b %Y")(new Date(d));
 <p class="lede">Where Waymo's robotaxis can take you, ${fmtMonth(dates[0])} to ${fmtMonth(dates.at(-1))}.</p>
 
 ```js
-const picked = view(metroPicker(allMetros, waymo.states, allMetros.filter((m) => fromHash.includes(slug(m)))));
+const picked = view(metroPicker(allMetros, Object.fromEntries(waymo.metros.map((d) => [d.metro, d.state])), allMetros.filter((m) => fromHash.includes(slug(m)))));
 ```
 
 ```js
