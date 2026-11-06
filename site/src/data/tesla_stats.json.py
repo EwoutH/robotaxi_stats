@@ -8,7 +8,8 @@ version in force in each metro on that date. Events:
   Robotaxi Tracker first recorded the shape (the service may have started before);
 - a later version is an expansion if it adds at least MIN_GROWTH of the previous area. Smaller changes are mostly
   re-exports, small edits or a switch of source, and stay in the timeseries only.
-No population figures.
+Residents come from areas/tesla/03_population.py: a launch or earliest data adds all residents of its version, an
+expansion those of the area it added.
 """
 import pandas as pd
 from pyproj import Geod
@@ -26,7 +27,7 @@ v["valid_to"] = v.valid_to.dt.strftime("%Y-%m-%d")
 v = v.sort_values(["metro", "valid_from"])
 
 ts = pd.DataFrame([
-    dict(date=d, metro=r.metro, area_mi2=r.area_mi2)
+    dict(date=d, metro=r.metro, area_mi2=r.area_mi2, pop=r.pop)
     for d in sorted(v.valid_from.unique())
     for r in v.itertuples()
     if r.valid_from <= d and (pd.isna(r.valid_to) or d < r.valid_to)
@@ -40,11 +41,11 @@ for metro, g in v.groupby("metro"):
                      source=r.source, source_url=r.source_url)
         if prev is None:
             kind = "earliest_data" if r.date_kind == "first_seen" else "launch"
-            events.append(dict(kind=kind, added=r.area_mi2, **extra))
+            events.append(dict(kind=kind, added=r.area_mi2, pop_added=r.pop, **extra))
         else:
             added = mi2(r.geometry.difference(prev.geometry))
             if added >= MIN_GROWTH * prev.area_mi2:
-                events.append(dict(kind="expansion", added=added, **extra))
+                events.append(dict(kind="expansion", added=added, pop_added=r.pop_added, **extra))
         prev = r
 
 write_stats("tesla", ts, pd.DataFrame(events))

@@ -3,6 +3,8 @@
 Shared by the Tesla loaders. A city's open date is the first capture showing it open. When that is the first capture
 naming any city (Austin), the page only started naming cities then, so the city's earlier versions are kept.
 A version straddling the open date starts on it instead, with date_kind "opened".
+Adds the residents of each version (pop) and those it added to the previous version (pop_added) from
+areas/tesla/data/population_versions.csv, or nulls where they are not computed yet.
 """
 import sys
 from pathlib import Path
@@ -34,6 +36,10 @@ def open_since():
 def open_versions():
     """(versions, dropped): open versions with a metro column, and the cities left out as not listed open."""
     v = gpd.read_file(AREAS / "tesla" / "tesla_service_areas.geojson")
+    f = DATA / "population_versions.csv"
+    pop = pd.read_csv(f) if f.exists() else pd.DataFrame(columns=["city", "valid_from", "pop", "pop_added"])
+    pop["valid_from"] = pd.to_datetime(pop.valid_from).astype(v.valid_from.dtype)
+    v = v.merge(pop[["city", "valid_from", "pop", "pop_added"]], on=["city", "valid_from"], how="left")
     v["metro"] = [metro_of(c) or c for c in v.city]
     since = open_since()
     dropped = sorted(set(v.city[~v.metro.isin(since)]))

@@ -11,6 +11,7 @@ from tesla_open import open_versions
 
 v, _ = open_versions()
 v["geometry"] = shapely.set_precision(v.geometry, 1e-5)
-v = v[["metro", "city", "valid_from", "valid_to", "date_kind", "source", "source_url", "area_mi2", "geometry"]]
+v["pop"] = v["pop"].round(-2)
+v = v[["metro", "city", "valid_from", "valid_to", "date_kind", "source", "source_url", "area_mi2", "pop", "geometry"]]
 
 write_areas(v.sort_values(["metro", "valid_from"]), "tesla")
