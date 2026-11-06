@@ -1,9 +1,12 @@
 name: Waymo service-area maps
 
-# Daily check of Waymo's help pages for new service-area maps.
-# Saves changed pages and new maps to areas/waymo/live/, asks the Wayback Machine
-# to capture them, and opens an issue when a new map appears (it still needs
-# georeferencing by hand: see areas/waymo/README.md).
+# Daily check of Waymo's help pages for new service-area maps, in two stages:
+# 1. check: saves changed pages and new maps to areas/waymo/live/, records them in
+#    the snapshot index, asks the Wayback Machine to capture them, and commits.
+# 2. update: runs only if stage 1 saved something (or by hand via "Run workflow").
+#    Georeferences new maps, rebuilds the dataset, checks the new maps
+#    (check_new_maps.py), computes population, commits and deploys the site.
+#    If it fails, stage 1's capture is already committed; an issue says what failed.
 
 on:
   schedule:
@@ -13,6 +16,7 @@ on:
 permissions:
   contents: write
   issues: write
+  actions: write # start the site workflow (pushes made with this token don't trigger it)
 
 concurrency:
   group: waymo-maps
@@ -22,6 +26,10 @@ jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      new_maps: ${{ steps.check.outputs.new_maps }}
+      summary: ${{ steps.summary.outputs.text }}
     steps:
       - uses: actions/checkout@v4
 
@@ -42,11 +50,16 @@ jobs:
           IA_SECRET_KEY: ${{ secrets.IA_SECRET_KEY }}
         run: python 07_watch_live.py
 
-      - name: Commit changes
+      - name: Pass summary on
+        id: summary
+        run: |
+          { echo "text<<EOF"; cat "$RUNNER_TEMP/summary.md"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+
+      - name: Commit capture
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add areas/waymo/live
+          git add areas/waymo/live areas/waymo/data/snapshot_images.csv areas/waymo/data/snapshot_sources.csv
           if git diff --cached --quiet; then
             echo "Nothing to commit"
           else
@@ -55,18 +68,94 @@ jobs:
             git push
           fi
 
-      - name: Open issue for new maps
-        if: steps.check.outputs.new_maps != '0'
+  update:
+    needs: check
+    if: needs.check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: areas/waymo
+        shell: bash # with pipefail, so `| tee` keeps a failing exit code
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }} # includes stage 1's commit
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install geopandas pyogrio pyarrow shapely pyproj opencv-python-headless numpy pandas requests matplotlib osmium
+
+      - name: Georeference new maps (step 2)
+        run: python 02_georeference.py
+
+      - name: Build dataset (step 3)
+        run: python 03_build_dataset.py
+
+      - name: Check new maps
+        id: qa
+        run: python check_new_maps.py | tee "$RUNNER_TEMP/qa.txt"
+
+      - name: Population of changed metros (step 6)
+        run: python 06_population.py
+
+      - name: Upload QA images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa
+          path: areas/waymo/qa/
+          if-no-files-found: ignore
+
+      - name: Commit and deploy
+        id: commit
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # GeoPackages are rewritten byte-differently on every run; the CSVs show real changes
+          if git diff --quiet -- '*.csv'; then
+            echo "Nothing changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add waymo_service_areas.gpkg data/
+          git commit -m "Waymo maps: update dataset $(date -u +%Y-%m-%d)"
+          git pull --rebase
+          git push
+          gh workflow run site.yml --ref "${{ github.ref_name }}"
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+      - name: Open issue
+        if: always() && (failure() || needs.check.outputs.new_maps != '0')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUMMARY: ${{ needs.check.outputs.summary }}
+          FAILED: ${{ job.status == 'failure' }}
+        run: |
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           {
-            echo "The daily check found ${{ steps.check.outputs.new_maps }} new map(s) on Waymo's help pages:"
+            echo "The daily check found these changes on Waymo's help pages:"
             echo
-            cat "$RUNNER_TEMP/summary.md"
+            echo "$SUMMARY"
             echo
-            echo "Saved in \`areas/waymo/live/\`. To add them to the dataset, run steps 1-6 (see \`areas/waymo/README.md\`), check the new \`qa/\` images, then commit and push the GeoPackage and \`data/\`. The site updates by itself."
+            if [ "$FAILED" = "true" ]; then
+              echo "**The automatic update failed**, so the site still shows the old data. The capture is saved in \`areas/waymo/live/\`."
+              echo "See the run log and the \`qa\` artifact. If a map was fitted wrongly, fix it by hand as described in \`areas/waymo/README.md\` (\`data/manual_georef.csv\`), push, and re-run this workflow."
+            else
+              echo "Georeferenced, checked and published automatically. To review the fit, see the \`qa\` artifact of the run."
+            fi
+            if [ -s "$RUNNER_TEMP/qa.txt" ]; then
+              echo
+              echo '```'
+              cat "$RUNNER_TEMP/qa.txt"
+              echo '```'
+            fi
             echo
-            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          } > body.md
-          gh issue create --title "New Waymo service-area map(s) $(date -u +%Y-%m-%d)" --body-file body.md
+            echo "Run: $run_url"
+          } > "$RUNNER_TEMP/body.md"
+          title="New Waymo service-area map(s) $(date -u +%Y-%m-%d)"
+          [ "$FAILED" = "true" ] && title="Waymo map update failed $(date -u +%Y-%m-%d)"
+          gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"

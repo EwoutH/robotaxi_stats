@@ -8,9 +8,9 @@ by the Wayback Machine:
 - https://support.google.com/waymo/answer/16011725 (Austin & Atlanta on Uber, Jun 2025 to now)
 
 Waymo publishes these areas as styled PNG maps with no coordinates.
-This folder rebuilds them as vector data:
-49 canonical map versions across 15 metros, from Dec 16 2022 to Nov 4 2026
-(53 image renditions; 46 metropolitan boundary versions).
+This folder rebuilds them as vector data from Dec 16 2022 onwards, and a daily
+GitHub Action adds new maps. At the time of the reports (Nov 4 2026): 49 canonical
+map versions across 15 metros (53 image renditions; 46 metropolitan boundary versions).
 
 **History repaired (2026-11-04):** Austin/Atlanta now use verified archive
 captures and actual replay timestamps. Austin's July 2025 and January 2026 dates
@@ -41,9 +41,10 @@ people now live inside a service area, up from 0.97 million in December 2022.
 | `waymo_service_area_*.geojson` | The same two layers as GeoJSON (generated, not in git) |
 | `data/area_timeseries.csv` | Area per metro on every snapshot date |
 | `data/expansion_events.csv` | Every launch/expansion per metro: area before/after, sq mi added and removed |
-| `report.md`, `figures/report/*.svg`, `data/report_stats.json` | Report with statistics and figures |
+| `data/image_polygons.gpkg`, `data/georef_params.csv` | Polygon and georeference per source map image |
+| `report.md`, `figures/report/*.svg`, `data/report_stats.json` | Report with statistics and figures (written once, 2026-11; not updated automatically) |
 | `figures/*.png` | Area over time per metro, total area, and a map of all versions per metro (generated, not in git) |
-| `data/population_*.csv`, `report_population.md`, `figures/report/people_*.svg`, `density_*.svg` | Residents (2020 Census blocks) per version, per expansion, per snapshot date and per density decile, plus the population report |
+| `data/population_*.csv`, `report_population.md`, `figures/report/people_*.svg`, `density_*.svg` | Residents (2020 Census blocks) per version, per expansion, per snapshot date and per density decile, plus the population report (report, deciles and figures written once, 2026-11) |
 | `qa/` | Each source map next to OSM roads drawn with the fitted georeference, for checking (generated, not in git) |
 
 Geometries are EPSG:4326. Areas are geodesic (WGS84 ellipsoid). For your own
@@ -80,13 +81,17 @@ unrelated metro snapshot date.
    uses template correlation on a distance field. The blue fill is then vectorised.
    OSM roads come from Overpass or, if that's down, Geofabrik extracts in `raw/osm/pbf/`.
 3. `03_build_dataset.py` turns the snapshot dates into validity periods and
-   computes the area.
-4. `04_visualize.py` makes the overview PNG figures.
-5. `05_report_figures.py` computes the report statistics and SVG figures.
-   `report.md` itself is written by hand from `data/report_stats.json`.
+   computes the area and the expansion events.
+4. `04_visualize.py` makes the overview PNG figures (optional).
+5. `05_report_figures.py` computes the report statistics and SVG figures (optional).
+   `report.md` was written once by hand from `data/report_stats.json`.
 6. `06_population.py` sums 2020 Census block population inside every version and
-   expansion (areal weighting, ±150 m band) and relates it to 2020 Urban Areas.
-   `report_population.md` is written by hand from `data/population_stats.json`.
+   expansion (areal weighting, ±150 m band). By default it recomputes only metros whose
+   versions changed. `--report` recomputes everything and also writes the inputs of
+   `report_population.md` (written once by hand from `data/population_stats.json`).
+
+`check_new_maps.py` checks newly fitted maps automatically (see below). The site
+needs only steps 2, 3 and 6.
 
 ## Accuracy and caveats
 
@@ -114,53 +119,65 @@ unrelated metro snapshot date.
 
 ### Updating with new snapshots
 
+New maps on the live pages are picked up and published by the daily GitHub Action
+(next section). A full local rebuild, including the Wayback Machine history:
+
 ```bash
 python 01_fetch_snapshots.py      # new archive snapshots + today's live pages
-python 02_georeference.py         # only new images; ~2-4 min each, 6 in parallel
+python 02_georeference.py         # only new images; ~1-4 min each, 6 in parallel
 python 03_build_dataset.py
-python 04_visualize.py
-python 05_report_figures.py       # then update the numbers in report.md by hand
-python 06_population.py           # then update report_population.md by hand
+python check_new_maps.py          # automatic check of maps fitted since the last commit
+python 06_population.py           # only metros that changed
 ```
 
-Step 6 needs 2020 Census blocks per state and the 2020 Urban Areas in `raw/census/`
-(~2.6 GB). It stops with the download URL if a file is missing; a new metro also needs
-an entry in `STATE` in `06_population.py`:
+Missing inputs are downloaded: Geofabrik road extracts into `raw/osm/pbf/` (step 2)
+and 2020 Census blocks per state plus the 2020 Urban Areas into `raw/census/`
+(step 6, ~100-750 MB per state). Each state is read once and cached as
+`raw/census/blocks_<fips>.parquet`. A new metro needs a `METROS` entry (and ideally
+a `PBF` entry) in `02_georeference.py` and a `STATE` entry in `06_population.py`.
 
-```bash
-curl -o raw/census/tl_2020_06_tabblock20.zip https://www2.census.gov/geo/tiger/TIGER2020/TABBLOCK20/tl_2020_06_tabblock20.zip
-curl -o raw/census/tl_2023_us_uac20.zip https://www2.census.gov/geo/tiger/TIGER2023/UAC/tl_2023_us_uac20.zip
-```
-
-Each state is read once (CA/TX take a minute) and cached as `raw/census/blocks_<fips>.parquet`.
-
-Commit and push `waymo_service_areas.gpkg`, `data/` and (for a new metro) `06_population.py`.
+Commit and push `waymo_service_areas.gpkg`, `data/` and (for a new metro) the scripts.
 The site (`site/`, published by `.github/workflows/site.yml`) then rebuilds by itself: new
 metros, dates and expansions appear automatically, grouped by the state from `STATE` above.
 
 ### Daily check (GitHub Action)
 
-`.github/workflows/waymo_maps.yml` runs `07_watch_live.py` every day at 06:17 UTC
-(or by hand via *Run workflow*). It fetches both live pages and compares the cities,
+`.github/workflows/waymo_maps.yml` runs every day at 06:17 UTC (or by hand via
+*Run workflow*) in two stages.
+
+**1. check** runs `07_watch_live.py`. It fetches both live pages and compares the cities,
 notes and map images with `live/state.json`. On a change it commits:
 
 - `live/pages/<page>_<timestamp>.html.gz`: the page as fetched
 - `live/images/<sha1>.png`: each map not seen before
 - `live/changes.csv`: one row per city added, removed, given a new map or changed text
+- the capture's rows in `data/snapshot_images.csv` and `data/snapshot_sources.csv`
 
 It also asks the Wayback Machine to capture the page and the new maps. This uses the
 anonymous Save Page Now endpoint, or the authenticated API if the repo secrets
 `IA_ACCESS_KEY` / `IA_SECRET_KEY` are set (keys from https://archive.org/account/s3.php).
-A new map opens a GitHub issue, because it still needs the steps below.
 The job fails (and GitHub emails you) if a page can't be fetched or parsed.
 
-`01_fetch_snapshots.py` reads `live/` as extra snapshots, so after a `git pull` the
-steps below pick up the CI captures, even if Google has since removed the map.
+**2. update** runs only after a change (or when started by hand). It runs steps 2, 3,
+`check_new_maps.py` and 6 on the runner, without the archived pages or old images:
+step 2 takes new maps from `live/images/` and keeps the committed polygons of the
+others; the road extract and Census blocks for the changed metro are downloaded.
+If all passes, it commits the dataset and starts the site workflow (pushes made with
+the workflow's own token don't trigger other workflows). It opens an issue for new
+maps with the check results; the QA images are in the run's `qa` artifact.
 
-After step 2, look at the new `qa/*.jpg` files: the red OSM roads should run along
-the grey roads and through the highway shields. If a fit is wrong, add a row to
+`check_new_maps.py` replaces looking at `qa/` by eye. A new map passes if its fit
+`quality` is at least 0.6 and, for an existing metro, the new area keeps at least 90%
+of the previous version. Service areas almost never shrink, and a misaligned fit
+lands kilometres off (the Nov 2026 Las Vegas map shifted by 5 km keeps only 45%).
+
+If stage 2 fails (bad fit, a real shrinkage, a new city without a `METROS` entry), the
+capture is already committed and the issue says so. Fix it locally: `git pull`, run the
+steps above and look at the new `qa/*.jpg`. If a fit is wrong, add a row to
 `data/manual_georef.csv` (`image_file, s, x0, y0`), delete that image's row in
-`data/georef_params.csv`, and re-run step 2.
+`data/georef_params.csv`, and re-run step 2. Then push the result.
+`01_fetch_snapshots.py` reads `live/` as extra snapshots, so a full rebuild keeps the
+CI captures, even if Google has since removed the map.
 
 Python packages: `geopandas shapely pyproj opencv-python numpy pandas requests
 matplotlib osmium pyogrio pyarrow`.
@@ -169,8 +186,8 @@ Git holds only code, docs, the final dataset and the report. Everything else is
 regenerated by the scripts (see `.gitignore`): `raw/snapshots/` (page HTML, ~210 MB,
 from archive.org), `raw/images/` (source maps, ~37 MB, from Google/archive.org),
 `raw/osm/` (road caches and Geofabrik extracts, ~2.7 GB), `qa/`, the PNG figures and
-the GeoJSON exports. `data/georef_params.csv` is committed, so polygons can be rebuilt
-from re-downloaded images without redoing the slow fit. Keep a local copy of
+the GeoJSON exports. `data/georef_params.csv` and `data/image_polygons.gpkg` are
+committed, so the dataset can be rebuilt without the images or the slow fit. Keep a local copy of
 `raw/images/` if you want to be safe against the source maps disappearing.
 
 ### Things learned the hard way
@@ -223,8 +240,6 @@ from re-downloaded images without redoing the slow fit. Keep a local copy of
 - Airports and freeways: these are announced separately and not drawn on these maps.
 - Other sources with dated maps, e.g. `waymo.com` city pages, press releases, or
   the CPUC/CA DMV ODD maps, to tighten change dates or go back before Feb 2024.
-- Automate steps 2-5 in CI for new maps. Needs the OSM extracts (several GB) and a
-  human look at the QA image, so for now the daily check only saves and reports.
 
 ### Repair inputs and archive provenance
 
