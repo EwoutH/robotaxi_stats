@@ -127,6 +127,27 @@ def _overpass_bbox(s, w, n, e, classes, tries=3, depth=0):
 
 
 PBF_DIR = OSM_DIR / "pbf"
+GEOFABRIK = "https://download.geofabrik.de/north-america/us/"
+
+
+def download_pbf(name):
+    """Fetch a Geofabrik extract (e.g. "nevada", "socal") into raw/osm/pbf/."""
+    path = PBF_DIR / f"{name}-latest.osm.pbf"
+    if path.exists():
+        return path
+    sub = "california/" if name in ("socal", "norcal") else ""
+    url = f"{GEOFABRIK}{sub}{name}-latest.osm.pbf"
+    print(f"  downloading {url}", flush=True)
+    PBF_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".part")
+    with requests.get(url, stream=True, timeout=120,
+                      headers={"User-Agent": "robotaxi_stats"}) as r:
+        r.raise_for_status()
+        with open(tmp, "wb") as f:
+            for chunk in r.iter_content(1 << 20):
+                f.write(chunk)
+    tmp.replace(path)
+    return path
 
 
 def roads_from_pbf(pbf, targets, classes="motorway|trunk|primary|secondary|motorway_link"):

@@ -1,14 +1,17 @@
 """Step 2: georeference every distinct map image and turn the blue service
 area into polygons.
 
-Input : data/snapshot_images.csv, raw/images/*
+Input : data/snapshot_images.csv, raw/images/* (or live/images/* for CI captures)
 Output: data/georef_params.csv     (scale/offset + match score per image)
         data/image_polygons.gpkg   (one polygon per image, EPSG:4326)
         qa/<city>_<image>.jpg      (OSM roads drawn over the map, for checking)
 
-Re-running only processes images not yet in georef_params.csv. To redo one,
+Re-running only fits images not yet in georef_params.csv. To redo one,
 delete its row. Manual fixes can go in data/manual_georef.csv
 (columns: image_file, s, x0, y0), which take precedence.
+Polygons are rebuilt for every image found locally. Images that aren't (e.g. on
+the CI runner, which has only the new maps) keep their committed polygon.
+Missing road data is read from a Geofabrik extract, downloaded if needed.
 """
 import os
 import sys
@@ -27,6 +30,7 @@ import georef as G  # noqa: E402
 
 ROOT = Path(__file__).parent
 DATA, IMG, QA = ROOT / "data", ROOT / "raw" / "images", ROOT / "qa"
+LIVE_IMG = ROOT / "live" / "images"
 QA.mkdir(exist_ok=True)
 
 # Approximate centre and search radius per metro (lat, lon, radius_km)
@@ -56,7 +60,8 @@ PBF = {"Miami": "florida", "Orlando": "florida", "Tampa": "florida",
        "Nashville": "tennessee", "San Antonio": "texas", "Austin": "texas",
        "Dallas": "texas", "Houston": "texas", "San Diego": "socal",
        "Los Angeles": "socal", "Atlanta": "georgia", "Phoenix": "arizona",
-       "Denver": "colorado", "Las Vegas": "nevada", "San Francisco": "norcal"}
+       "Denver": "colorado", "Las Vegas": "nevada", "San Francisco": "norcal",
+       "Detroit": "michigan", "New Orleans": "louisiana"}
 ALIASES = {"San Francisco Bay Area": "San Francisco", "Silicon Valley": "San Francisco",
            "Peninsula": "San Francisco", "Washington, D.C.": "Washington DC",
            "Metro Phoenix": "Phoenix", "Miami-Dade": "Miami"}
@@ -177,8 +182,14 @@ def service_mask(rgba, image_file):
     return G.blue_mask(rgba)
 
 
+def image_path(image_file):
+    """raw/images/, or the copy the daily CI check committed to live/images/."""
+    p = IMG / image_file
+    return p if p.exists() or not (LIVE_IMG / image_file).exists() else LIVE_IMG / image_file
+
+
 def process_one(image_file, metro, first_seen, use_manual):
-    rgba = G.load_rgba(IMG / image_file)
+    rgba = G.load_rgba(image_path(image_file))
     lat, lon, rad = METROS[metro]
     if use_manual:
         m = pd.read_csv(DATA / "manual_georef.csv").set_index("image_file").loc[image_file]
@@ -228,8 +239,8 @@ def main():
     for metro in sorted({t[1] for t in todo}):
         lat, lon, rad = METROS[metro]
         cache = G.osm_cache_path(metro.replace(" ", "_").lower(), rad)
-        pbf = G.PBF_DIR / f"{PBF.get(metro, '')}-latest.osm.pbf"
-        if not cache.exists() and metro in PBF and pbf.exists():
+        if not cache.exists() and metro in PBF:
+            pbf = G.download_pbf(PBF[metro])
             need.setdefault(pbf, {})[cache] = G.osm_bbox(lat, lon, rad)
     for pbf, targets in need.items():
         G.roads_from_pbf(pbf, targets)
@@ -257,9 +268,16 @@ def main():
         for _, m in manual.iterrows():
             P.loc[P.image_file == m.image_file, ["s", "x0", "y0", "source"]] = [m.s, m.x0, m.y0, "manual"]
         P.to_csv(pfile, index=False)
+    out = DATA / "image_polygons.gpkg"
+    kept = gpd.read_file(out).set_index("image_file") if out.exists() else None
     recs = []
     for _, p in P.iterrows():
-        rgba = G.load_rgba(IMG / p.image_file)
+        if not image_path(p.image_file).exists():
+            if kept is None or p.image_file not in kept.index:
+                raise FileNotFoundError(f"{p.image_file}: no image and no committed polygon")
+            recs.append(dict(image_file=p.image_file, **kept.loc[p.image_file].to_dict()))
+            continue
+        rgba = G.load_rgba(image_path(p.image_file))
         mask = service_mask(rgba, p.image_file)
         poly = mask_to_polygon(mask)
         if poly is None:
@@ -273,7 +291,7 @@ def main():
         recs.append(dict(image_file=p.image_file, metro=p.metro, quality=p.quality,
                          source=p.source, m_per_px_merc=p.s, clipped_by_frame=touches, geometry=geom))
     gdf = gpd.GeoDataFrame(recs, crs=4326)
-    gdf.to_file(DATA / "image_polygons.gpkg", driver="GPKG")
+    gdf.to_file(out, driver="GPKG")
     print(gdf.drop(columns="geometry").to_string())
 
 
