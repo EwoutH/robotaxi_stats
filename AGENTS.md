@@ -3,6 +3,7 @@
 Public repo with data and analysis on robotaxi services, one folder per topic under `areas/` (and later possibly other top-level folders, e.g. `safety/`).
 
 - `areas/waymo/`: Waymo service areas over time. Numbered scripts `01_`..`07_` build the dataset; see its README. Run with the system `python` (`ds` environment). Regenerable inputs (`raw/`, `qa/`) are gitignored and stay local.
+- `areas/tesla/`: Tesla Robotaxi service areas over time, combined from community datasets (Robotaxi Tracker, AV Map) plus city status from archived tesla.com/robotaxi. Two re-runnable scripts; see its README.
 - `site/`: public Observable Framework site (GitHub Pages), one page per topic (`src/areas/waymo.md`) plus a landing page. Python data loaders in `site/src/data/` read straight from the topic folders; add new pages to `pages` in `observablehq.config.js`. Local: `npm install`, `npm run dev` (or `npm run build`) in `site/`.
 - CI: `.github/workflows/site.yml` builds and deploys the site on pushes to `main`. `.github/workflows/waymo_maps.yml` runs `areas/waymo/07_watch_live.py` daily on GitHub Actions, commits new captures to `areas/waymo/live/` and opens an issue for new maps. Optional secrets: `IA_ACCESS_KEY`, `IA_SECRET_KEY`.
 
