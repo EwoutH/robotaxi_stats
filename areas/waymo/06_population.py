@@ -5,16 +5,19 @@ the blocks inside the polygon. A block that crosses the boundary counts with the
 share of its area inside (areal weighting). Density uses the blocks' land area
 (ALAND20), so water drawn inside the service area doesn't dilute it.
 
-Inputs (downloaded once into raw/census/, ~2.6 GB, see README):
-  tl_2020_<state>_tabblock20.zip   2020 blocks with POP20, HOUSING20, ALAND20
-  tl_2023_us_uac20.zip             2020 Census Urban Areas (polygons)
+By default only metros whose versions changed since the last run are recomputed,
+so only their states' Census blocks are needed. Missing Census files are
+downloaded into raw/census/ (~100-750 MB per state).
 
-Outputs:
+Outputs (used by the site):
   data/population_versions.csv     population per metro version (+-150 m band)
   data/population_events.csv       residents and density added per launch/expansion
   data/population_timeseries.csv   residents served per metro per snapshot date
+
+With --report, recomputes every metro (all states, ~2.6 GB) and also writes the
+inputs of report_population.md, which was written once (2026-11):
   data/population_density_deciles.csv  share covered per density decile of the urban area
-  data/population_stats.json       numbers for report.md
+  data/population_stats.json       numbers for report_population.md
   figures/report/people_*.svg, density_*.svg
 """
 import json
@@ -27,6 +30,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import requests
 import shapely
 from matplotlib.lines import Line2D
 
@@ -54,8 +58,18 @@ BLOCK_COLS = ["GEOID20", "POP20", "HOUSING20", "ALAND20", "AWATER20", "INTPTLAT2
 # ---------------------------------------------------------------- census data
 
 def _need(path, url):
-    if not path.exists():
-        raise SystemExit(f"Missing {path}. Download it first:\n  curl -o {path} {url}")
+    """Download a Census file into raw/census/ if it isn't there yet."""
+    if path.exists():
+        return
+    print(f"  downloading {url}", flush=True)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".part")
+    with requests.get(url, stream=True, timeout=120) as r:
+        r.raise_for_status()
+        with open(tmp, "wb") as f:
+            for chunk in r.iter_content(1 << 20):
+                f.write(chunk)
+    tmp.replace(path)
 
 
 def urban_areas():
@@ -154,10 +168,13 @@ def summarise(share, B):
 
 # ---------------------------------------------------------------- tables
 
-def compute(mv):
+def compute(mv, only=None, with_deciles=True):
+    """Population per version and event for every metro (or only those in `only`)."""
     ua = urban_areas()
     states, vers, events, deciles, meta = {}, [], [], [], {}
     for metro, g in mv.groupby("metro"):
+        if only is not None and metro not in only:
+            continue
         g = g.sort_values("valid_from")
         if metro not in STATE:
             raise SystemExit(f"Add {metro} to STATE (state FIPS code) in 06_population.py")
@@ -185,6 +202,8 @@ def compute(mv):
                                pw_density_added_mi2=a["pw_density_mi2"],
                                pop_removed=summarise(cover_shares(removed, B), B)["pop"]))
             prev = geom
+        if not with_deciles:
+            continue
         # coverage by density decile of the metro's Urban Area (current version)
         share = cover_shares(geoms[-1], B)
         U = B[B.in_metro_ua].assign(cov=(B.POP20 * share)[B.in_metro_ua])
@@ -369,8 +388,47 @@ def stats(V, E, D, T, W, meta):
     }
 
 
+def version_key(df):
+    """Per metro: its versions as (valid_from, valid_to, area), to spot changed metros."""
+    d = lambda c: pd.to_datetime(df[c]).dt.strftime("%Y-%m-%d").fillna("")
+    k = pd.DataFrame({"metro": df.metro, "f": d("valid_from"), "t": d("valid_to"),
+                      "a": df.area_mi2.astype(float).round(2)})
+    return {m: list(map(tuple, g[["f", "t", "a"]].values)) for m, g in k.groupby("metro")}
+
+
+def update(mv, ts):
+    """Recompute only metros whose versions changed; keep the other rows as they are."""
+    V0 = pd.read_csv(DATA / "population_versions.csv", parse_dates=["valid_from", "valid_to"])
+    E0 = pd.read_csv(DATA / "population_events.csv", parse_dates=["date"])
+    new, old = version_key(mv), version_key(V0)
+    changed = sorted(m for m in new if new[m] != old.get(m))
+    print("changed metros:", ", ".join(changed) or "none")
+    if changed:
+        V1, E1, _, _ = compute(mv, only=set(changed), with_deciles=False)
+        V = pd.concat([V0[V0.metro.isin(new) & ~V0.metro.isin(changed)], V1])
+        E = pd.concat([E0[E0.metro.isin(new) & ~E0.metro.isin(changed)], E1])
+    else:
+        V, E = V0, E0
+    V = V.sort_values(["metro", "valid_from"]).reset_index(drop=True)
+    E = E.sort_values(["metro", "date"]).reset_index(drop=True)
+    for df, cols in ((V, ["valid_from", "valid_to"]), (E, ["date"])):
+        for c in cols:
+            df[c] = pd.to_datetime(df[c])
+    return V, E, timeseries(V, ts)
+
+
+def write(V, E, T):
+    fmt = lambda df, cols: df.assign(**{c: pd.to_datetime(df[c]).dt.strftime("%Y-%m-%d") for c in cols})
+    fmt(V.round(4), ["valid_from", "valid_to"]).to_csv(DATA / "population_versions.csv", index=False)
+    fmt(E.round(2), ["date"]).to_csv(DATA / "population_events.csv", index=False)
+    fmt(T.round(0), ["date"]).to_csv(DATA / "population_timeseries.csv", index=False)
+
+
 def main():
     mv, _, ts = R.load()
+    if "--report" not in sys.argv:
+        write(*update(mv, ts))
+        return
     V, E, D, meta = compute(mv)
     T = timeseries(V, ts)
     W = R.daily_total(T.drop(columns="area_mi2").assign(area_mi2=T["pop"]), ts.date.max())
@@ -383,9 +441,7 @@ def main():
     fig_density_over_time(T, ts.date.max())
     fig_deciles(D, cur.sort_values("pw_density_mi2", ascending=False).metro.tolist())
     S = stats(V, E, D, T, W, meta)
-    V.round(4).to_csv(DATA / "population_versions.csv", index=False)
-    E.round(2).to_csv(DATA / "population_events.csv", index=False)
-    T.round(0).to_csv(DATA / "population_timeseries.csv", index=False)
+    write(V, E, T)
     D.round(4).to_csv(DATA / "population_density_deciles.csv", index=False)
     (DATA / "population_stats.json").write_text(json.dumps(S, indent=1, default=str))
     print(json.dumps(S, indent=1, default=str))
