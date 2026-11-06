@@ -1,7 +1,6 @@
 # Regenerable: re-run the numbered scripts (see README)
 raw/
 qa/
-figures/*.png
 data/image_url_cache.json
 data/image_capture_cache.json
 *.geojson

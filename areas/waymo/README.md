@@ -9,28 +9,24 @@ by the Wayback Machine:
 
 Waymo publishes these areas as styled PNG maps with no coordinates.
 This folder rebuilds them as vector data from Dec 16 2022 onwards, and a daily
-GitHub Action adds new maps. At the time of the reports (Nov 4 2026): 49 canonical
-map versions across 15 metros (53 image renditions; 46 metropolitan boundary versions).
+GitHub Action adds new maps. The site shows it at https://ewouth.github.io/robotaxi_stats/areas/waymo.
 
 **History repaired (2026-11-04):** Austin/Atlanta now use verified archive
 captures and actual replay timestamps. Austin's July 2025 and January 2026 dates
 are corroborated operator-announcement additions identified through AV Map.
-See [the repair report](report_history_repair.md) and
-[external comparison](report_external_comparison.md). Other metros retain the
-prior reconstruction and still need a separate archive-provenance audit.
+Other metros retain the prior reconstruction and still need a separate
+archive-provenance audit.
 
 **Earlier history added (2026-11-04):** six SF/Phoenix announcement maps
 extend the series to December 2022. Stale early-2024 Phoenix maps are excluded
-from operational history while retained in the raw index. See
-[the early-history report](report_early_history.md). Both metros share the
+from operational history while retained in the raw index. Both metros share the
 December 16, 2022 comparison baseline, labelled "Earliest data", not "Launch".
 Phoenix combines downtown and East Valley; the full map's month-only label is
 explicitly attributed to the dated December 16 announcement.
 
-**Findings:** see [report.md](report.md). Comparable total area grew from 123 to 1,891 sq mi,
-10 new metros launched in 2026, and service areas almost never shrink.
-[report_population.md](report_population.md) adds residents (2020 Census): 11.3 million
-people now live inside a service area, up from 0.97 million in December 2022.
+## Reports (Nov 2026)
+
+A one-time analysis of the dataset as of 2026-11-04 (49 map versions across 15 metros) is archived in the release [`waymo-reports-2026-11`](https://github.com/EwoutH/robotaxi_stats/releases/tag/waymo-reports-2026-11): area over time, residents served (2020 Census), the Austin/Atlanta history repair, the early SF/Phoenix history, and a comparison with Robotaxi Tracker and AV Map. Comparable total area grew from 123 to 1,891 sq mi, 10 new metros launched in 2026, service areas almost never shrink, and 11.3 million people lived inside a service area, up from 0.97 million in December 2022. The reports aren't updated; the release's tag holds the code that built them.
 
 ## Outputs
 
@@ -42,9 +38,7 @@ people now live inside a service area, up from 0.97 million in December 2022.
 | `data/area_timeseries.csv` | Area per metro on every snapshot date |
 | `data/expansion_events.csv` | Every launch/expansion per metro: area before/after, sq mi added and removed |
 | `data/image_polygons.gpkg`, `data/georef_params.csv` | Polygon and georeference per source map image |
-| `report.md`, `figures/report/*.svg`, `data/report_stats.json` | Report with statistics and figures (written once, 2026-11; not updated automatically) |
-| `figures/*.png` | Area over time per metro, total area, and a map of all versions per metro (generated, not in git) |
-| `data/population_*.csv`, `report_population.md`, `figures/report/people_*.svg`, `density_*.svg` | Residents (2020 Census blocks) per version, per expansion, per snapshot date and per density decile, plus the population report (report, deciles and figures written once, 2026-11) |
+| `data/population_*.csv` | Residents (2020 Census blocks) per version, per expansion and per snapshot date |
 | `qa/` | Each source map next to OSM roads drawn with the fitted georeference, for checking (generated, not in git) |
 
 Geometries are EPSG:4326. Areas are geodesic (WGS84 ellipsoid). For your own
@@ -72,26 +66,21 @@ unrelated metro snapshot date.
 
 ## Method
 
-1. `01_fetch_snapshots.py` lists Wayback snapshots (CDX API), downloads each page,
-   pulls out every city heading and its map image, and downloads each distinct image.
-2. `02_georeference.py` + `georef.py` fit each image to OpenStreetMap roads. The
-   maps are north-up Web Mercator renders, so the fit has three parameters (scale,
-   x-offset, y-offset). Road lines are extracted from the image and matched to
-   rasterised OSM motorway/trunk/primary/secondary roads. A coarse-to-fine search
-   uses template correlation on a distance field. The blue fill is then vectorised.
-   OSM roads come from Overpass or, if that's down, Geofabrik extracts in `raw/osm/pbf/`.
-3. `03_build_dataset.py` turns the snapshot dates into validity periods and
-   computes the area and the expansion events.
-4. `04_visualize.py` makes the overview PNG figures (optional).
-5. `05_report_figures.py` computes the report statistics and SVG figures (optional).
-   `report.md` was written once by hand from `data/report_stats.json`.
-6. `06_population.py` sums 2020 Census block population inside every version and
-   expansion (areal weighting, ±150 m band). By default it recomputes only metros whose
-   versions changed. `--report` recomputes everything and also writes the inputs of
-   `report_population.md` (written once by hand from `data/population_stats.json`).
+- Step 1, `01_fetch_snapshots.py`, lists Wayback snapshots (CDX API), downloads each page,
+  pulls out every city heading and its map image, and downloads each distinct image.
+- Step 2, `02_georeference.py` + `georef.py`, fits each image to OpenStreetMap roads. The
+  maps are north-up Web Mercator renders, so the fit has three parameters (scale,
+  x-offset, y-offset). Road lines are extracted from the image and matched to
+  rasterised OSM motorway/trunk/primary/secondary roads. A coarse-to-fine search
+  uses template correlation on a distance field. The blue fill is then vectorised.
+  OSM roads come from Overpass or, if that's down, Geofabrik extracts in `raw/osm/pbf/`.
+- Step 3, `03_build_dataset.py`, turns the snapshot dates into validity periods and
+  computes the area and the expansion events.
+- Step 6, `06_population.py`, sums 2020 Census block population inside every version and
+  expansion (areal weighting, ±150 m band). It recomputes only metros whose versions
+  changed; delete `data/population_versions.csv` to recompute all of them.
 
-`check_new_maps.py` checks newly fitted maps automatically (see below). The site
-needs only steps 2, 3 and 6.
+`check_new_maps.py` checks newly fitted maps automatically and `07_watch_live.py` captures the live pages (see below). Steps 4 and 5 made the report figures and are only in the [release](https://github.com/EwoutH/robotaxi_stats/releases/tag/waymo-reports-2026-11).
 
 ## Accuracy and caveats
 
@@ -180,12 +169,12 @@ steps above and look at the new `qa/*.jpg`. If a fit is wrong, add a row to
 CI captures, even if Google has since removed the map.
 
 Python packages: `geopandas shapely pyproj opencv-python numpy pandas requests
-matplotlib osmium pyogrio pyarrow`.
+osmium pyogrio pyarrow`.
 
-Git holds only code, docs, the final dataset and the report. Everything else is
+Git holds only code, docs, the final dataset and the live captures. Everything else is
 regenerated by the scripts (see `.gitignore`): `raw/snapshots/` (page HTML, ~210 MB,
 from archive.org), `raw/images/` (source maps, ~37 MB, from Google/archive.org),
-`raw/osm/` (road caches and Geofabrik extracts, ~2.7 GB), `qa/`, the PNG figures and
+`raw/osm/` (road caches and Geofabrik extracts, ~2.7 GB), `qa/` and
 the GeoJSON exports. `data/georef_params.csv` and `data/image_polygons.gpkg` are
 committed, so the dataset can be rebuilt without the images or the slow fit. Keep a local copy of
 `raw/images/` if you want to be safe against the source maps disappearing.
