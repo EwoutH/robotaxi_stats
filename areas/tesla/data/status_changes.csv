@@ -1,0 +1,11 @@
+date,window_start,city_id,name,status_from,status_to
+2025-12-25,,austin,Austin,,open
+2026-04-27,2026-04-17,dallas,Dallas,,open
+2026-04-27,2026-04-17,houston,Houston,,open
+2026-07-04,2026-07-03,miami,Miami,,open
+2026-07-26,2026-07-21,orlando,Orlando,,open
+2026-07-26,2026-07-21,tampa,Tampa,,open
+2026-10-22,2026-10-20,jacksonville,Jacksonville,,soon
+2026-10-22,2026-10-20,las-vegas,Las Vegas,,soon
+2026-10-22,2026-10-20,phoenix,Phoenix,,soon
+2026-10-22,2026-10-20,san-antonio,San Antonio,,soon
