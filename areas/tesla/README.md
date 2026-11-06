@@ -7,7 +7,7 @@ Tesla publishes no service-area maps or polygons outside its Robotaxi app. This 
 | `01_boundaries.py` | [Robotaxi Tracker](https://github.com/Robotaxi-Tracker/robotaxi-service-areas) (CC BY 4.0), every commit touching `areas/tesla/`; [AV Map](https://github.com/path-avmap/av-map-data) (MIT) at a pinned commit | `data/boundary_versions.csv`, `tesla_service_areas.geojson` |
 | `02_city_status.py` | Wayback Machine captures of [tesla.com/robotaxi](https://www.tesla.com/robotaxi), one per day, only new ones on re-runs | `data/page_captures.csv`, `data/page_cities.csv`, `data/status_changes.csv` |
 
-Run both with the system `python` (`ds` environment). Set `GITHUB_TOKEN` (e.g. `GITHUB_TOKEN=$(gh auth token)`) to avoid GitHub API rate limits. Both scripts are safe to re-run daily: script 1 rebuilds from scratch in seconds, and script 2 fetches only captures it has not seen.
+Run both with the system `python` (`ds` environment). Set `GITHUB_TOKEN` (e.g. `GITHUB_TOKEN=$(gh auth token)`) to avoid GitHub API rate limits. Both scripts are safe to re-run daily: script 1 rebuilds from scratch in seconds, and script 2 fetches only captures it has not seen. `.github/workflows/tesla_areas.yml` does this daily on GitHub Actions, commits the results and opens an issue when `boundary_versions.csv` or `status_changes.csv` changes.
 
 ## Sources and dates
 

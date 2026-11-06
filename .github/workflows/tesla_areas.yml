@@ -1,0 +1,73 @@
+name: Tesla service areas
+
+# Daily re-run of the Tesla scripts (see areas/tesla/README.md). Commits updated
+# data and opens an issue when a boundary version or a city status changes.
+
+on:
+  schedule:
+    - cron: "37 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: tesla-areas
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: areas/tesla
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests shapely pyproj brotli
+
+      - name: Update boundaries
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python 01_boundaries.py
+
+      - name: Update city status
+        run: python 02_city_status.py
+
+      - name: Commit changes
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git diff --cached -U0 -- data/boundary_versions.csv data/status_changes.csv > "$RUNNER_TEMP/changes.diff"
+          git commit -m "Tesla areas: daily update $(date -u +%Y-%m-%d)"
+          git pull --rebase
+          git push
+          if [ -s "$RUNNER_TEMP/changes.diff" ]; then echo "changed=true" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Open issue for changes
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "The daily run found new Tesla boundary versions or city status changes:"
+            echo
+            echo '```diff'
+            cat "$RUNNER_TEMP/changes.diff"
+            echo '```'
+            echo
+            echo "Commit: ${{ github.server_url }}/${{ github.repository }}/commit/$(git rev-parse HEAD)"
+          } > "$RUNNER_TEMP/body.md"
+          gh issue create --title "Tesla service-area change $(date -u +%Y-%m-%d)" --body-file "$RUNNER_TEMP/body.md"
