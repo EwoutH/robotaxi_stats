@@ -6,8 +6,9 @@ Tesla publishes no service-area maps or polygons outside its Robotaxi app. This 
 |---|---|---|
 | `01_boundaries.py` | [Robotaxi Tracker](https://github.com/Robotaxi-Tracker/robotaxi-service-areas) (CC BY 4.0), every commit touching `areas/tesla/`; [AV Map](https://github.com/path-avmap/av-map-data) (MIT) at a pinned commit | `data/boundary_versions.csv`, `tesla_service_areas.geojson` |
 | `02_city_status.py` | Wayback Machine captures of [tesla.com/robotaxi](https://www.tesla.com/robotaxi), one per day, only new ones on re-runs | `data/page_captures.csv`, `data/page_cities.csv`, `data/status_changes.csv` |
+| `03_population.py` | `tesla_service_areas.geojson`; 2020 Census blocks and Urban Areas (downloaded into `areas/raw/census/`) | `data/population_versions.csv` |
 
-Run both with the system `python` (`ds` environment). Set `GITHUB_TOKEN` (e.g. `GITHUB_TOKEN=$(gh auth token)`) to avoid GitHub API rate limits. Both scripts are safe to re-run daily: script 1 rebuilds from scratch in seconds, and script 2 fetches only captures it has not seen. `.github/workflows/tesla_areas.yml` does this daily on GitHub Actions, commits the results and opens an issue when `boundary_versions.csv` or `status_changes.csv` changes.
+Run them with the system `python` (`ds` environment). Set `GITHUB_TOKEN` (e.g. `GITHUB_TOKEN=$(gh auth token)`) to avoid GitHub API rate limits. All are safe to re-run daily: script 1 rebuilds from scratch in seconds, script 3 recomputes only cities whose versions changed, and script 2 fetches only captures it has not seen. `.github/workflows/tesla_areas.yml` does this daily on GitHub Actions, commits the results and opens an issue when `boundary_versions.csv` or `status_changes.csv` changes.
 
 ## Sources and dates
 
@@ -19,6 +20,20 @@ Run both with the system `python` (`ds` environment). Set `GITHUB_TOKEN` (e.g. `
 - Some captures (e.g. 2026-07-10) are archived Brotli-compressed. Install the `brotli` package to read them; without it the script skips them and retries on the next run.
 
 Areas are geodesic (WGS84). Geometries are EPSG:4326.
+
+## Residents
+
+`03_population.py` counts the 2020 Census residents inside every version with the same code as Waymo's step 6 (`areas/census.py`): Census blocks inside the area count fully, blocks crossing the boundary by the share of their area inside. Density uses land area only. Each city uses the blocks of its metro in `areas/metros.csv` (Tesla's "Bay Area" is San Francisco); a city without a row there is skipped until one is added.
+
+`data/population_versions.csv` has one row per boundary version (key: `city`, `valid_from`):
+
+- `pop`, `housing`, `land_mi2`, `density_mi2`: residents, housing units, land area and residents per square mile of land.
+- `pw_density_mi2`: the block-group density the average resident lives at.
+- `pop_lo`, `pop_hi`: residents with the boundary moved `band_m` in and out. Traced shapes (AV Map, hand-drawn copies) get 150 m, as Waymo's traced maps do; Tesla's own polygons get 0.
+- `pop_in_metro_ua`, `pop_urban`, `share_of_ua`: residents in the metro's 2020 Urban Area(s), in any Urban Area, and the share of the metro's Urban Area population served.
+- `area_added_mi2`, `pop_added`, `land_added_mi2`, `density_added_mi2`, `pw_density_added_mi2`, `pop_removed`: what the version added to and removed from the city's previous one.
+
+These are 2020 counts on 2025–2026 boundaries, so growth since 2020 is missing. The site shows `pop` and `pop_added` for the cities tesla.com lists as open.
 
 ## Known gaps
 

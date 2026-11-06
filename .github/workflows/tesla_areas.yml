@@ -2,7 +2,8 @@ name: Tesla service areas
 
 # Daily re-run of the Tesla scripts (see areas/tesla/README.md). Commits updated
 # data and starts the site workflow; opens an issue when a boundary version or a
-# city status changes.
+# city status changes. Residents are recomputed only for cities whose boundaries
+# changed, which downloads that state's Census blocks (a few minutes).
 
 on:
   schedule:
@@ -21,7 +22,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: areas/tesla
@@ -32,12 +33,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install requests shapely pyproj brotli
+      - run: pip install requests shapely pyproj brotli geopandas pyogrio pyarrow
 
       - name: Update boundaries
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python 01_boundaries.py
+
+      - name: Residents of changed cities
+        run: python 03_population.py
 
       - name: Update city status
         run: python 02_city_status.py
