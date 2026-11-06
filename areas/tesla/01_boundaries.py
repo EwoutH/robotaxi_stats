@@ -9,7 +9,11 @@
   Date = the event date in its events.csv.
 
 A version that overlaps the previous one by 99.9% or more (intersection over
-union) is treated as unchanged and dropped. Writes:
+union) is treated as unchanged and dropped. Until 2026-08-30 the tracker's shapes
+were hand-drawn (files without properties); since then they are Tesla's exact
+polygons (files with properties). When an exact shape overlaps the hand-drawn one
+before it by 90% or more, it is the same boundary drawn again: it replaces that
+version's geometry, and `redrawn` records its date. Writes:
   data/boundary_versions.csv   one row per version, without geometry
   tesla_service_areas.geojson  the same rows with geometry (EPSG:4326)
 """
@@ -29,7 +33,7 @@ TRACKER = "Robotaxi-Tracker/robotaxi-service-areas"
 AVMAP, AVMAP_SHA = "path-avmap/av-map-data", "3c94c4f924c69f425a54debe0c594a286bf16d8c"
 GEOD = Geod(ellps="WGS84")
 FIELDS = ["city", "valid_from", "valid_to", "date_kind", "source", "source_ref",
-          "source_url", "area_km2", "area_mi2", "iou_prev"]
+          "source_url", "area_km2", "area_mi2", "iou_prev", "redrawn"]
 
 session = requests.Session()
 session.headers["User-Agent"] = "robotaxi_stats research script"
@@ -50,6 +54,11 @@ def raw(repo, sha, path):
     return r.text
 
 
+def has_properties(geojson):
+    feats = geojson["features"] if geojson["type"] == "FeatureCollection" else [geojson]
+    return any(f.get("properties") for f in feats)
+
+
 def to_geometry(geojson):
     feats = geojson["features"] if geojson["type"] == "FeatureCollection" else [geojson]
     return shapely.make_valid(shapely.union_all([shape(f["geometry"]) for f in feats]))
@@ -63,11 +72,12 @@ def tracker_versions():
         for item in tree:
             parts = item["path"].split("/")
             if parts[:2] == ["areas", "tesla"] and parts[-1] == "boundary.geojson":
+                geojson = json.loads(raw(TRACKER, sha, item["path"]))
                 yield {"city": parts[2].replace("_", " ").title(), "valid_from": date,
                        "date_kind": "first_seen", "source": "robotaxi_tracker",
                        "source_ref": sha[:12],
                        "source_url": f"https://github.com/{TRACKER}/blob/{sha}/{item['path']}",
-                       "geometry": to_geometry(json.loads(raw(TRACKER, sha, item["path"])))}
+                       "exact": has_properties(geojson), "geometry": to_geometry(geojson)}
 
 
 def avmap_versions():
@@ -76,8 +86,19 @@ def avmap_versions():
         file = e["geometry_file"]
         if e["company"] == "Tesla" and file.endswith(".geojson"):
             yield {"city": e["city"], "valid_from": e["date"], "date_kind": "announced",
-                   "source": "av_map", "source_ref": AVMAP_SHA[:12], "source_url": e["source_url"],
+                   "source": "av_map", "source_ref": AVMAP_SHA[:12], "source_url": e["source_url"], "exact": False,
                    "geometry": to_geometry(json.loads(raw(AVMAP, AVMAP_SHA, f"geometries/{file}")))}
+
+
+def iou(a, b):
+    return a.intersection(b).area / a.union(b).area
+
+
+def measure(r, prev):
+    if prev:
+        r["iou_prev"] = round(iou(r["geometry"], prev["geometry"]), 3)
+    km2 = abs(GEOD.geometry_area_perimeter(r["geometry"])[0]) / 1e6
+    r.update(area_km2=round(km2, 2), area_mi2=round(km2 / 2.589988, 2))
 
 
 def main():
@@ -85,17 +106,18 @@ def main():
                   key=lambda r: (r["city"], r["valid_from"], r["source"]))
     versions = []
     for r in rows:
-        prev = versions[-1] if versions and versions[-1]["city"] == r["city"] else None
-        g = r["geometry"]
+        same = [v for v in versions if v["city"] == r["city"]]
+        prev = same[-1] if same else None
         if prev:
-            p = prev["geometry"]
-            iou = g.intersection(p).area / g.union(p).area
-            if iou >= 0.999:
+            overlap = iou(r["geometry"], prev["geometry"])
+            if overlap >= 0.999:
                 continue  # same shape, only re-exported
+            if overlap >= 0.9 and r["exact"] and not prev["exact"] and r["source"] == prev["source"]:
+                prev.update(geometry=r["geometry"], exact=True, redrawn=r["valid_from"])
+                measure(prev, same[-2] if len(same) > 1 else None)
+                continue
             prev["valid_to"] = r["valid_from"]
-            r["iou_prev"] = round(iou, 3)
-        km2 = abs(GEOD.geometry_area_perimeter(g)[0]) / 1e6
-        r.update(area_km2=round(km2, 2), area_mi2=round(km2 / 2.589988, 2))
+        measure(r, prev)
         versions.append(r)
 
     (ROOT / "data").mkdir(exist_ok=True)
