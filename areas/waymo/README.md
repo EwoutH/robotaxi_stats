@@ -77,8 +77,8 @@ unrelated metro snapshot date.
 - Step 3, `03_build_dataset.py`, turns the snapshot dates into validity periods and
   computes the area and the expansion events.
 - Step 6, `06_population.py`, sums 2020 Census block population inside every version and
-  expansion (areal weighting, ±150 m band). It recomputes only metros whose versions
-  changed; delete `data/population_versions.csv` to recompute all of them.
+  expansion (areal weighting, ±150 m band; code shared with Tesla in `areas/census.py`).
+  It recomputes only metros whose versions changed; delete `data/population_versions.csv` to recompute all of them.
 
 `check_new_maps.py` checks newly fitted maps automatically and `07_watch_live.py` captures the live pages (see below). Steps 4 and 5 made the report figures and are only in the [release](https://github.com/EwoutH/robotaxi_stats/releases/tag/waymo-reports-2026-11).
 
@@ -120,9 +120,9 @@ python 06_population.py           # only metros that changed
 ```
 
 Missing inputs are downloaded: Geofabrik road extracts into `raw/osm/pbf/` (step 2)
-and 2020 Census blocks per state plus the 2020 Urban Areas into `raw/census/`
-(step 6, ~100-750 MB per state). Each state is read once and cached as
-`raw/census/blocks_<fips>.parquet`. A new metro needs one row in [`areas/metros.csv`](../metros.csv): centre, search radius, state and state FIPS code, and ideally a Geofabrik extract.
+and 2020 Census blocks per state plus the 2020 Urban Areas into `areas/raw/census/`
+(step 6, shared with Tesla, ~100-750 MB per state). Each state is read once and cached as
+`areas/raw/census/blocks_<fips>.parquet`. A new metro needs one row in [`areas/metros.csv`](../metros.csv): centre, search radius, state and state FIPS code, and ideally a Geofabrik extract.
 
 Commit and push `waymo_service_areas.gpkg`, `data/` and (for a new metro) `metros.csv`.
 The site (`site/`, published by `.github/workflows/site.yml`) then rebuilds by itself: new

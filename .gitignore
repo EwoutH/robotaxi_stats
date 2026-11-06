@@ -2,3 +2,6 @@
 /explorations/av-map-data/
 
 __pycache__/
+
+# Census downloads and caches (areas/census.py), regenerable
+/areas/raw/
