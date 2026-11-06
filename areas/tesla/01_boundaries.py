@@ -9,11 +9,11 @@
   Date = the event date in its events.csv.
 
 A version that overlaps the previous one by 99.9% or more (intersection over
-union) is treated as unchanged and dropped. Until 2026-08-30 the tracker's shapes
-were hand-drawn (files without properties); since then they are Tesla's exact
-polygons (files with properties). When an exact shape overlaps the hand-drawn one
-before it by 90% or more, it is the same boundary drawn again: it replaces that
-version's geometry, and `redrawn` records its date. Writes:
+union) is treated as unchanged and dropped. Files with properties are Tesla's exact
+polygons from the app's API (`exact`); files without are hand-drawn copies (Austin and
+Bay Area until 2026-08-30). When an exact shape overlaps the hand-drawn one before it
+by 90% or more, it is the same boundary drawn again: it replaces that version's
+geometry, and `redrawn` records its date. Writes:
   data/boundary_versions.csv   one row per version, without geometry
   tesla_service_areas.geojson  the same rows with geometry (EPSG:4326)
 """
@@ -33,7 +33,7 @@ TRACKER = "Robotaxi-Tracker/robotaxi-service-areas"
 AVMAP, AVMAP_SHA = "path-avmap/av-map-data", "3c94c4f924c69f425a54debe0c594a286bf16d8c"
 GEOD = Geod(ellps="WGS84")
 FIELDS = ["city", "valid_from", "valid_to", "date_kind", "source", "source_ref",
-          "source_url", "area_km2", "area_mi2", "iou_prev", "redrawn"]
+          "source_url", "area_km2", "area_mi2", "iou_prev", "exact", "redrawn"]
 
 session = requests.Session()
 session.headers["User-Agent"] = "robotaxi_stats research script"
