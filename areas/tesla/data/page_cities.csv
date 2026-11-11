@@ -229,6 +229,17 @@ timestamp,city_id,name,status,lon,lat,form
 20261022204548,phoenix,Phoenix,soon,-112.074,33.4484,map
 20261022204548,san-antonio,San Antonio,soon,-98.4936,29.4241,map
 20261022204548,tampa,Tampa,open,-82.4572,27.9506,map
+20261105202441,austin,Austin,open,-97.7431,30.2672,map
+20261105202441,dallas,Dallas,open,-96.797,32.7767,map
+20261105202441,fort-worth,Fort Worth,open,-97.3325,32.7563,map
+20261105202441,houston,Houston,open,-95.3698,29.7604,map
+20261105202441,jacksonville,Jacksonville,soon,-81.6557,30.3322,map
+20261105202441,las-vegas,Las Vegas,soon,-115.1398,36.1699,map
+20261105202441,miami,Miami,open,-80.1918,25.7617,map
+20261105202441,orlando,Orlando,open,-81.3792,28.5383,map
+20261105202441,phoenix,Phoenix,soon,-112.074,33.4484,map
+20261105202441,san-antonio,San Antonio,soon,-98.4936,29.4241,map
+20261105202441,tampa,Tampa,open,-82.4572,27.9506,map
 20261107220028,austin,Austin,open,-97.7431,30.2672,map
 20261107220028,dallas,Dallas,open,-96.797,32.7767,map
 20261107220028,fort-worth,Fort Worth,open,-97.3325,32.7563,map
