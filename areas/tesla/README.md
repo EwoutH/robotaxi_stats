@@ -37,6 +37,6 @@ These are 2020 counts on 2025–2026 boundaries, so growth since 2020 is missing
 
 ## Known gaps
 
-- Changes after the tracker's last commit (2026-09-10) are missing, e.g. the Houston expansion announced on 2026-10-26.
+- Changes after the tracker's last commit (2026-09-10) are missing, e.g. the Houston expansion announced on 2026-10-26, and Fort Worth, which tesla.com lists as open since 2026-11-05 but which has no boundary yet.
 - No Tesla boundaries between AV Map's last version (2025-10-28) and the tracker's first (2026-04-20). Press reports say Austin did not change in that period, which the 0.989 overlap supports.
 - Tesla's announcement maps on X are not used yet. They could fill these gaps and confirm dates.
