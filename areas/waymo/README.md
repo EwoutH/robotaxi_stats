@@ -64,6 +64,15 @@ operator-announcement dates from first verified map observations.
 `change_window_start` now uses the last old observation of the same city, not an
 unrelated metro snapshot date.
 
+Where Waymo dated a change itself, `valid_from` is that date instead of the first
+map observation. Most such dates come from the [Waymo Help announcements](https://support.google.com/waymo/announcements/12766613)
+(e.g. "Expanded service area in Phoenix and Orlando", 08/13/2026), which date
+launches and expansions from March 2024 on; a few come from Waymo's blog. A date is
+used only if it falls between the last map showing the old area and the first
+showing the new one. Launch dates assume the first map shows the launch area.
+Changes without such an announcement (e.g. Atlanta and Austin in summer 2026,
+Houston in May 2026) keep their observation dates.
+
 ## Method
 
 - Step 1, `01_fetch_snapshots.py`, lists Wayback snapshots (CDX API), downloads each page,
@@ -235,7 +244,7 @@ committed, so the dataset can be rebuilt without the images or the slow fit. Kee
 
 - `data/snapshot_sources.csv` records the verified Austin/Atlanta page and image
   replay URLs, actual capture times, retrieval times and SHA-256 hashes.
-- `data/history_sources.csv` holds the two curated operator-announcement dates;
+- `data/history_sources.csv` holds the operator-announcement dates (one row per city label and map, with the announcement URL and a check of announced against traced area);
   step 3 uses these without inventing archive captures on those dates.
 - `data/image_equivalences.csv` identifies two lower-resolution renditions of
   unchanged maps, preventing resampling from creating spurious expansions.

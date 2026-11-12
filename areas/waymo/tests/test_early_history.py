@@ -29,7 +29,8 @@ class EarlyHistoryTests(unittest.TestCase):
 
     def test_phoenix_does_not_revert_to_stale_2024_map(self):
         rows = self.versions[self.versions.metro == "Phoenix"].sort_values("valid_from")
-        self.assertEqual(rows.head(4).valid_from.tolist(), ["2022-12-16", "2023-05-04", "2023-07-07", "2024-07-12"])
+        self.assertEqual(rows.head(4).valid_from.tolist(), ["2022-12-16", "2023-05-04", "2023-07-07", "2024-06-05"])
+        self.assertTrue((rows.head(4).date_basis == "operator_announcement").all())
         self.assertGreater(rows.iloc[2].area_mi2, rows.iloc[1].area_mi2 + 35)
         raw = pd.read_csv(ROOT / "data" / "snapshot_images.csv")
         stale = raw[(raw.city == "Phoenix") & (raw.image_file == "c4ae70c4e9335b83.png")]
