@@ -5,12 +5,17 @@ Austin,2025-08-03,2025-08-26,announced,av_map,3c94c4f924c6,https://www.pcmag.com
 Austin,2025-08-26,2025-10-28,announced,av_map,3c94c4f924c6,https://electrek.co/2025/08/27/tesla-announces-50-increase-in-austin-robotaxi-but-50-from-what/,454.41,175.45,0.524,False,
 Austin,2025-10-28,2026-04-20,announced,av_map,3c94c4f924c6,https://x.com/SawyerMerritt/status/1983287391315214570/photo/1,636.42,245.72,0.691,False,
 Austin,2026-04-20,2026-08-31,first_seen,robotaxi_tracker,9c5480dc50ca,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/9c5480dc50ca2e0f07b7df53638364ee4109a250/areas/tesla/austin/boundary.geojson,634.42,244.95,0.992,True,2026-08-30
-Austin,2026-08-31,,first_seen,robotaxi_tracker,0300274d09d3,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/0300274d09d31039692d0603f813e197cc806a27/areas/tesla/austin/boundary.geojson,683.57,263.93,0.928,True,
+Austin,2026-08-31,2026-10-23,first_seen,robotaxi_tracker,0300274d09d3,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/0300274d09d31039692d0603f813e197cc806a27/areas/tesla/austin/boundary.geojson,683.57,263.93,0.928,True,
+Austin,2026-10-23,2026-11-09,announced,tesla_map,29da5cb568ef,https://www.teslaoracle.com/2026/10/23/tesla-expands-cybercab-robotaxi-austin-geofence-ahead-of-2026-us-grand-prix/,704.89,272.16,0.97,False,
+Austin,2026-11-09,,announced,tesla_map,75b79cdc6f75,https://x.com/robotaxi/status/2119746828191027346,1147.5,443.05,0.614,False,
 Bay Area,2025-07-31,2026-04-20,announced,av_map,3c94c4f924c6,https://www.businessinsider.com/teslas-ride-hailing-service-live-in-san-francisco-musk-says-2025-7,2902.49,1120.66,,False,
 Bay Area,2026-04-20,,first_seen,robotaxi_tracker,9c5480dc50ca,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/9c5480dc50ca2e0f07b7df53638364ee4109a250/areas/tesla/bay_area/boundary.geojson,2840.32,1096.65,0.979,True,2026-08-30
 Dallas,2026-04-20,2026-08-29,first_seen,robotaxi_tracker,9c5480dc50ca,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/9c5480dc50ca2e0f07b7df53638364ee4109a250/areas/tesla/dallas/boundary.geojson,79.87,30.84,,True,
 Dallas,2026-08-29,,first_seen,robotaxi_tracker,be25073d54c0,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/be25073d54c070af389b8235dd19947881a764f8/areas/tesla/dallas/boundary.geojson,209.95,81.06,0.381,True,
-Houston,2026-04-20,,first_seen,robotaxi_tracker,9c5480dc50ca,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/9c5480dc50ca2e0f07b7df53638364ee4109a250/areas/tesla/houston/boundary.geojson,64.41,24.87,,True,
+Fort Worth,2026-11-02,,announced,tesla_map,2fedaf7d461e,https://x.com/robotaxi/status/2117128711761985656,375.15,144.85,,False,
+Houston,2026-04-20,2026-10-26,first_seen,robotaxi_tracker,9c5480dc50ca,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/9c5480dc50ca2e0f07b7df53638364ee4109a250/areas/tesla/houston/boundary.geojson,64.41,24.87,,True,
+Houston,2026-10-26,,announced,tesla_map,b3140bc8fdd6,https://x.com/robotaxi/status/2114713219411660978,665.33,256.88,0.097,False,
 Miami,2026-07-25,,first_seen,robotaxi_tracker,cf9a65827bd7,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/cf9a65827bd7eb6323421294bb6a8245772c8855/areas/tesla/miami/boundary.geojson,79.58,30.73,,True,2026-08-30
 Orlando,2026-07-27,,first_seen,robotaxi_tracker,e14da6ba2c48,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/e14da6ba2c4847ea7064075f34cc95fb8a5979e4/areas/tesla/orlando/boundary.geojson,67.65,26.12,,True,2026-08-30
+San Antonio,2026-11-09,,announced,tesla_map,7ef70fdf4faa,https://x.com/robotaxi/status/2119678179963187564,711.24,274.61,,False,
 Tampa,2026-07-27,,first_seen,robotaxi_tracker,e14da6ba2c48,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/e14da6ba2c4847ea7064075f34cc95fb8a5979e4/areas/tesla/tampa/boundary.geojson,60.96,23.54,,True,2026-08-30

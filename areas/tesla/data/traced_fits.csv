@@ -1,0 +1,6 @@
+city,valid_from,fit,m_per_px,centre_lon,centre_lat,road_quality,motorway_share,edge_median_px,edge_share_2px,area_mi2,geom_type
+Austin,2026-10-23,outline,42.14,-97.93103,30.28628,,,0.0,0.97,272.16,Polygon
+Houston,2026-10-26,roads,50.15,-95.45727,29.80509,0.645,0.873,,,256.88,Polygon
+Fort Worth,2026-11-02,roads,9.3,-97.37059,32.76673,0.588,0.929,,,144.85,Polygon
+San Antonio,2026-11-09,roads,12.78,-98.52564,29.50023,0.799,0.998,,,274.61,Polygon
+Austin,2026-11-09,outline,73.77,-97.71365,30.26884,,,0.0,0.925,443.05,Polygon

@@ -1,4 +1,4 @@
-"""Tesla Robotaxi service-area boundaries over time, from two community datasets.
+"""Tesla Robotaxi service-area boundaries over time, from two community datasets and traced maps.
 
 - Robotaxi Tracker (github.com/Robotaxi-Tracker/robotaxi-service-areas, CC BY 4.0):
   polygons taken from the Tesla Robotaxi app's fleet areas. Every commit that
@@ -7,13 +7,18 @@
 - AV Map (github.com/path-avmap/av-map-data, MIT): dated Tesla boundaries from
   2025, read at a pinned commit (the repo has not changed since May 2026).
   Date = the event date in its events.csv.
+- Traced maps (data/traced_boundaries.geojson, written by trace_maps.py): changes
+  neither dataset has, traced from Tesla's announcement maps or app screenshots.
+  Date = the announcement (or the report of an app change).
 
 A version that overlaps the previous one by 99.9% or more (intersection over
 union) is treated as unchanged and dropped. Files with properties are Tesla's exact
 polygons from the app's API (`exact`); files without are hand-drawn copies (Austin and
 Bay Area until 2026-08-30). When an exact shape overlaps the hand-drawn one before it
 by 90% or more, it is the same boundary drawn again: it replaces that version's
-geometry, and `redrawn` records its date. Writes:
+geometry, and `redrawn` records its date. A tracker shape that overlaps a traced
+version by 95% or more is the same change recorded later: an exact one replaces the
+traced geometry (`redrawn`), others are dropped. Writes:
   data/boundary_versions.csv   one row per version, without geometry
   tesla_service_areas.geojson  the same rows with geometry (EPSG:4326)
 """
@@ -90,6 +95,15 @@ def avmap_versions():
                    "geometry": to_geometry(json.loads(raw(AVMAP, AVMAP_SHA, f"geometries/{file}")))}
 
 
+def traced_versions():
+    for f in json.loads((ROOT / "data" / "traced_boundaries.geojson").read_text(encoding="utf-8"))["features"]:
+        p = f["properties"]
+        yield {"city": p["city"], "valid_from": p["valid_from"], "date_kind": "announced",
+               "source": "tesla_map", "source_ref": p["image_sha256"][:12],
+               "source_url": p["post_url"] or p["article_url"], "exact": False,
+               "geometry": shapely.make_valid(shape(f["geometry"]))}
+
+
 def iou(a, b):
     return a.intersection(b).area / a.union(b).area
 
@@ -102,23 +116,29 @@ def measure(r, prev):
 
 
 def main():
-    rows = sorted([*avmap_versions(), *tracker_versions()],
+    rows = sorted([*avmap_versions(), *tracker_versions(), *traced_versions()],
                   key=lambda r: (r["city"], r["valid_from"], r["source"]))
     versions = []
     for r in rows:
         same = [v for v in versions if v["city"] == r["city"]]
         prev = same[-1] if same else None
+        traced = [v for v in same if v["source"] == "tesla_map" and r["source"] != "tesla_map"
+                  and iou(r["geometry"], v["geometry"]) >= 0.95]
+        if traced:
+            if r["exact"]:
+                traced[-1].update(geometry=r["geometry"], exact=True, redrawn=r["valid_from"])
+            continue
         if prev:
             overlap = iou(r["geometry"], prev["geometry"])
             if overlap >= 0.999:
                 continue  # same shape, only re-exported
             if overlap >= 0.9 and r["exact"] and not prev["exact"] and r["source"] == prev["source"]:
                 prev.update(geometry=r["geometry"], exact=True, redrawn=r["valid_from"])
-                measure(prev, same[-2] if len(same) > 1 else None)
                 continue
             prev["valid_to"] = r["valid_from"]
-        measure(r, prev)
         versions.append(r)
+    for i, v in enumerate(versions):
+        measure(v, versions[i - 1] if i and versions[i - 1]["city"] == v["city"] else None)
 
     (ROOT / "data").mkdir(exist_ok=True)
     with open(ROOT / "data" / "boundary_versions.csv", "w", newline="", encoding="utf-8") as f:
