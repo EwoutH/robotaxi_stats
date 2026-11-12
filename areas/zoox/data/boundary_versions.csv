@@ -1,0 +1,6 @@
+metro,valid_from,valid_to,date_kind,source,source_url,area_mi2,pop,pop_added
+Las Vegas,2025-09-10,2026-05-14,announced,av_map,https://techcrunch.com/2025/09/10/zoox-opens-its-las-vegas-robotaxi-service-to-the-public/,12.35,40670,40670
+Las Vegas,2026-05-14,,first_seen,robotaxi_tracker,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/bbed3c47fb699c4df5c30454fffc63327d9a6d7d/areas/zoox/las-vegas-zoox/boundary.geojson,23.61,71220,30582
+San Francisco,2025-09-16,2025-11-18,announced,av_map,https://x.com/nearcyan/status/1968122084674113773,1.02,19364,19364
+San Francisco,2025-11-18,2026-05-11,announced,av_map,https://sfstandard.com/2025/11/18/zoox-launches-publicly-san-francisco-kind/,2.37,72290,52953
+San Francisco,2026-05-11,,first_seen,robotaxi_tracker,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/991b504578d6da701c7df8892fd3d7caa7f23db0/areas/zoox/bay-area-zoox/boundary.geojson,11.39,358969,286679

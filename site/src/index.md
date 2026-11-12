@@ -16,4 +16,8 @@ toc: false
     <h2>Tesla Robotaxi service areas</h2>
     <p class="muted">Where Tesla's Robotaxi operates, from June 2025 to now: map, growth in area, launches and expansions, and what the community-traced data does and doesn't cover.</p>
   </a>
+  <a class="card" href="./areas/zoox" style="text-decoration: none; color: inherit;">
+    <h2>Zoox service areas</h2>
+    <p class="muted">Where Zoox operates in Las Vegas and San Francisco, from September 2025 to now: map, growth in area and residents served, launches and expansions.</p>
+  </a>
 </div>

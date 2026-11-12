@@ -5,7 +5,8 @@ export default {
   // Pages are listed on the landing page. Turn the sidebar on once there are a few.
   pages: [
     {name: "Waymo service areas", path: "/areas/waymo"},
-    {name: "Tesla Robotaxi service areas", path: "/areas/tesla"}
+    {name: "Tesla Robotaxi service areas", path: "/areas/tesla"},
+    {name: "Zoox service areas", path: "/areas/zoox"}
   ],
   sidebar: false,
   pager: false,
