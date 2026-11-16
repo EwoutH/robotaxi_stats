@@ -10,12 +10,14 @@ import maplibregl from "npm:maplibre-gl@5.24.0";
 
 export const slug = (name) => name.toLowerCase().replace(/\s+/g, "-");
 export const fmtInt = d3.format(",.0f");
-export const fmtMillions = (x) => `${d3.format(".2f")(x / 1e6)}M`;
+// Head count: thousands under a million (e.g. 850k), millions above (1.23M).
+export const fmtPeople = (x) =>
+  x < 999.5e3 ? `${d3.format(".0f")(x / 1e3)}k` : `${d3.format(".2f")(x / 1e6)}M`;
 // Sum of residents; "–" if none are known yet, and "+" if some are missing (e.g. a new map before its population is computed).
 export function fmtResidents(values) {
   const known = values.filter((v) => v != null);
   if (!known.length) return "–";
-  return fmtMillions(d3.sum(known)) + (known.length < values.length ? "+" : "");
+  return fmtPeople(d3.sum(known)) + (known.length < values.length ? "+" : "");
 }
 export const fmtDate = d3.utcFormat("%Y-%m-%d");
 export const fmtMonth = (d) => d3.utcFormat("%b %Y")(new Date(d));
