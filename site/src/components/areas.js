@@ -126,22 +126,39 @@ export function segmented(options, initial) {
 export const changeDates = (features) =>
   [...new Set(features.flatMap((f) => [f.properties.valid_from, f.properties.valid_to]).filter(Boolean))].sort();
 
-// Slider over snapshot dates (index into dates), with a play button that steps through them and the date shown.
-// Works as an Observable input whose value is the index. Playback stops on invalidation.
+// Slider over dates on a linear time axis, snapping to the nearest date (ticked), with a play button that
+// steps through them and the date shown. Works as an Observable input whose value is the index into dates.
+// Playback stops on invalidation.
 export function timeline(dates, invalidation) {
-  const slider = Inputs.range([0, dates.length - 1], {step: 1, value: dates.length - 1});
+  const DAY = 864e5;
+  const days = dates.map((d) => Math.round((new Date(d) - new Date(dates[0])) / DAY));
+  const ticks = html`<datalist>${days.map((d) => html`<option value=${d}>`)}</datalist>`;
+  ticks.id = `timeline-ticks-${Math.random().toString(36).slice(2)}`;
+  const slider = html`<input type="range" min="0" max=${days.at(-1)} step="1" list=${ticks.id}>`;
   const playButton = html`<button class="play" title="Play">▶</button>`;
   const dateLabel = html`<span class="timeline-date"></span>`;
-  const node = html`<div class="timeline">${playButton}${slider}${dateLabel}</div>`;
-  Object.defineProperty(node, "value", {get: () => +slider.value});
-  const showDate = () => (dateLabel.textContent = dates[slider.value]);
-  slider.addEventListener("input", showDate);
-  showDate();
+  const node = html`<div class="timeline">${playButton}${slider}${ticks}${dateLabel}</div>`;
+  let index = dates.length - 1;
+  Object.defineProperty(node, "value", {get: () => index});
+  const show = () => {
+    slider.value = days[index];
+    dateLabel.textContent = dates[index];
+  };
+  show();
+  // Snap to the nearest date; only a change of date reaches the page.
+  slider.addEventListener("input", (event) => {
+    const nearest = d3.leastIndex(days, (d) => Math.abs(d - slider.value));
+    const changed = nearest !== index;
+    index = nearest;
+    show();
+    if (!changed) event.stopPropagation();
+  });
 
   let timer = null;
   const setIndex = (i) => {
-    slider.value = i;
-    slider.dispatchEvent(new Event("input", {bubbles: true}));
+    index = i;
+    show();
+    node.dispatchEvent(new Event("input", {bubbles: true}));
   };
   const stop = () => {
     clearInterval(timer);
@@ -150,9 +167,9 @@ export function timeline(dates, invalidation) {
   };
   playButton.onclick = () => {
     if (timer) return stop();
-    if (+slider.value >= dates.length - 1) setIndex(0);
+    if (index >= dates.length - 1) setIndex(0);
     playButton.textContent = "❚❚";
-    timer = setInterval(() => (+slider.value >= dates.length - 1 ? stop() : setIndex(+slider.value + 1)), 150);
+    timer = setInterval(() => (index >= dates.length - 1 ? stop() : setIndex(index + 1)), 150);
   };
   invalidation.then(stop);
   return node;

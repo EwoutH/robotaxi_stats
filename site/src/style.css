@@ -228,22 +228,10 @@ a.card:hover h2 {
   gap: 16px;
 }
 
-.timeline form {
+.timeline input[type="range"] {
   flex: 1;
   max-width: 520px;
-}
-
-.timeline form > label {
-  display: none;
-}
-
-.timeline input[type="range"] {
   accent-color: var(--accent);
-  width: 100%;
-}
-
-.timeline input[type="number"] {
-  display: none;
 }
 
 .play {
