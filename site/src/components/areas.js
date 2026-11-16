@@ -122,6 +122,10 @@ export function segmented(options, initial) {
   return root;
 }
 
+// Dates on which any of these metro versions starts or ends: the slider steps for a selection.
+export const changeDates = (features) =>
+  [...new Set(features.flatMap((f) => [f.properties.valid_from, f.properties.valid_to]).filter(Boolean))].sort();
+
 // Slider over snapshot dates (index into dates), with a play button that steps through them and the date shown.
 // Works as an Observable input whose value is the index. Playback stops on invalidation.
 export function timeline(dates, invalidation) {

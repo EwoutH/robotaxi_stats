@@ -6,7 +6,7 @@ toc: false
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
 
 ```js
-import {slug, fmtMonth, areaUnit, prepare, select, metroPicker, segmented, timeline, statTiles, ageColor, ageLegend, areaMap, bounds, drawAreas, growthCharts, eventsChart, eventsTable} from "../components/areas.js";
+import {slug, fmtMonth, areaUnit, prepare, select, metroPicker, segmented, timeline, changeDates, statTiles, ageColor, ageLegend, areaMap, bounds, drawAreas, growthCharts, eventsChart, eventsTable} from "../components/areas.js";
 
 const areas = FileAttachment("../data/waymo_areas.geojson").json();
 const stats = FileAttachment("../data/waymo_stats.json").json();
@@ -46,11 +46,13 @@ history.replaceState(null, "", picked.length ? `#${picked.map(slug).join(",")}` 
 ```
 
 ```js
-const pick = view(timeline(dates, invalidation));
+// With metros picked, the slider steps only through their boundary changes.
+const steps = picked.length ? changeDates(sel.features) : dates;
+const pick = view(timeline(steps, invalidation));
 ```
 
 ```js
-const date = dates[pick];
+const date = steps[pick];
 ```
 
 ```js

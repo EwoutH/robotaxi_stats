@@ -7,7 +7,7 @@ toc: false
 <style>:root { --accent: #d6312b; }</style>
 
 ```js
-import {slug, fmtInt, fmtMonth, areaUnit, prepare, select, metroPicker, segmented, timeline, statTiles, ageColor, ageLegend, areaMap, bounds, drawAreas, growthCharts, eventsChart, eventsTable} from "../components/areas.js";
+import {slug, fmtInt, fmtMonth, areaUnit, prepare, select, metroPicker, segmented, timeline, changeDates, statTiles, ageColor, ageLegend, areaMap, bounds, drawAreas, growthCharts, eventsChart, eventsTable} from "../components/areas.js";
 
 const areas = FileAttachment("../data/tesla_areas.geojson").json();
 const stats = FileAttachment("../data/tesla_stats.json").json();
@@ -77,11 +77,13 @@ history.replaceState(null, "", picked.length ? `#${picked.map(slug).join(",")}` 
 ```
 
 ```js
-const pick = view(timeline(dates, invalidation));
+// With metros picked, the slider steps only through their boundary changes.
+const steps = picked.length ? changeDates(sel.features) : dates;
+const pick = view(timeline(steps, invalidation));
 ```
 
 ```js
-const date = dates[pick];
+const date = steps[pick];
 ```
 
 ```js
