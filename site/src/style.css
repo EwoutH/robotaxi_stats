@@ -230,7 +230,6 @@ a.card:hover h2 {
 
 .timeline input[type="range"] {
   flex: 1;
-  max-width: 520px;
   accent-color: var(--accent);
 }
 

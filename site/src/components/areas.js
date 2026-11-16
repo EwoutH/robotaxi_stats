@@ -126,7 +126,7 @@ export function segmented(options, initial) {
 export const changeDates = (features) =>
   [...new Set(features.flatMap((f) => [f.properties.valid_from, f.properties.valid_to]).filter(Boolean))].sort();
 
-// Slider over dates on a linear time axis, snapping to the nearest date (ticked), with a play button that
+// Slider over dates on a linear time axis, holding at a date (ticked) until the next one is reached, with a play button that
 // steps through them and the date shown. Works as an Observable input whose value is the index into dates.
 // Playback stops on invalidation.
 export function timeline(dates, invalidation) {
@@ -145,11 +145,11 @@ export function timeline(dates, invalidation) {
     dateLabel.textContent = dates[index];
   };
   show();
-  // Snap to the nearest date; only a change of date reaches the page.
+  // Snap back to the last date at or before the thumb; only a change of date reaches the page.
   slider.addEventListener("input", (event) => {
-    const nearest = d3.leastIndex(days, (d) => Math.abs(d - slider.value));
-    const changed = nearest !== index;
-    index = nearest;
+    const reached = d3.bisectRight(days, +slider.value) - 1;
+    const changed = reached !== index;
+    index = reached;
     show();
     if (!changed) event.stopPropagation();
   });
