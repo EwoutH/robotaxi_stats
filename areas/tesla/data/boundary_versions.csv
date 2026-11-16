@@ -15,7 +15,8 @@ Dallas,2026-08-29,,first_seen,robotaxi_tracker,be25073d54c0,https://github.com/R
 Fort Worth,2026-11-02,,announced,tesla_map,2fedaf7d461e,https://x.com/robotaxi/status/2117128711761985656,375.15,144.85,,False,
 Houston,2026-04-20,2026-10-26,first_seen,robotaxi_tracker,9c5480dc50ca,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/9c5480dc50ca2e0f07b7df53638364ee4109a250/areas/tesla/houston/boundary.geojson,64.41,24.87,,True,
 Houston,2026-10-26,,announced,tesla_map,b3140bc8fdd6,https://x.com/robotaxi/status/2114713219411660978,665.33,256.88,0.097,False,
-Miami,2026-07-25,,first_seen,robotaxi_tracker,cf9a65827bd7,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/cf9a65827bd7eb6323421294bb6a8245772c8855/areas/tesla/miami/boundary.geojson,79.58,30.73,,True,2026-08-30
+Miami,2026-07-25,2026-11-16,first_seen,robotaxi_tracker,cf9a65827bd7,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/cf9a65827bd7eb6323421294bb6a8245772c8855/areas/tesla/miami/boundary.geojson,79.58,30.73,,True,2026-08-30
+Miami,2026-11-16,,announced,tesla_map,bf705132dc07,https://x.com/robotaxi/status/2122234442328740005,153.25,59.17,0.519,False,
 Orlando,2026-07-27,,first_seen,robotaxi_tracker,e14da6ba2c48,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/e14da6ba2c4847ea7064075f34cc95fb8a5979e4/areas/tesla/orlando/boundary.geojson,67.65,26.12,,True,2026-08-30
 San Antonio,2026-11-09,,announced,tesla_map,7ef70fdf4faa,https://x.com/robotaxi/status/2119678179963187564,711.24,274.61,,False,
 Tampa,2026-07-27,,first_seen,robotaxi_tracker,e14da6ba2c48,https://github.com/Robotaxi-Tracker/robotaxi-service-areas/blob/e14da6ba2c4847ea7064075f34cc95fb8a5979e4/areas/tesla/tampa/boundary.geojson,60.96,23.54,,True,2026-08-30
